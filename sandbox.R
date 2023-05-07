@@ -90,8 +90,35 @@ length(Pval[Pval < 0.05])/model_runs
 points(Fstat,Pval,col="green")
 #hist(Fstat)
 
-model_run40 = data.frame(Fstat,Pval)
+#We can loop this one more time and save our model runs at different levels of sampling effort (toy_size)
 
+sampling_bins = seq(10,100,5)
+
+Pval_ratio = vector("numeric",length(sampling_bins))
+Fstat_ratio = vector("numeric",length(sampling_bins))
+mean_Pval = vector("numeric",length(sampling_bins))
+mean_Fstat = vector("numeric",length(sampling_bins))
+
+for(j in 1:length(sampling_bins)){
+  model_runs = 100
+  toy_size = sampling_bins[j]
+  Fstat = vector("numeric",model_runs)
+  Pval = vector("numeric",model_runs)
+  
+  for(i in 1:model_runs){ #For every model run...
+    toy_data = make_toy(toy_size) #Make a toy dataset
+    toy.aov = aov(toy_data$toy_live ~ toy_data$toy_catchmnt) #Do the ANOVA on live vs G1
+    toy_results = unlist(summary(toy.aov)) #Break down the results
+    Fstat[i] = toy_results['F value1'] #Take F statistic and write to new variable
+    Pval[i] = toy_results['Pr(>F)1'] #Take P value and write to new variable
+  }
+  
+  Pval_ratio[j] = length(Pval[Pval < 0.05])/model_runs
+  Fstat_ratio[j] = length(Fstat[Fstat > 5])/model_runs
+  mean_Pval[j] = mean(Pval)
+  mean_Fstat[j] = mean(Fstat)
+  
+}
 
 
 
