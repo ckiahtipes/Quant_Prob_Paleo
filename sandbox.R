@@ -54,17 +54,24 @@ make_toy = function(x, #All it needs is for us to define the sample size. Now we
                     cat.names = c("Hills","Calah","Everg"), 
                     range_live = c(1,100), 
                     range_G1 = c(50,150), 
-                    c.probs = c(0.4,0.3,0.3)) #We define the variables in our new function here.
+                    c.probs = c(0.4,0.3,0.3),
+                    use_norm = FALSE) #We define the variables in our new function here.
   { #Here is where we code out what the function does
   toy_stations = paste0("station", c(1:toy_n))
   toy_catchmnt = c(rep(cat.names,c.probs*toy_n))
-  toy_live = sample(c(range_live[1]:range_live[2]),toy_n)
-  toy_G1 = sample(c(range_G1[1]:range_G1[2]),toy_n)
+  if(use_norm == FALSE){
+    toy_live = sample(c(range_live[1]:range_live[2]),toy_n)
+    toy_G1 = sample(c(range_G1[1]:range_G1[2]),toy_n)
+  } else {
+    toy_live = rnorm(toy_n,(range_live[2]-range_live[1])/2,20)
+    toy_G1 = rnorm(toy_n,(range_G1[2]-range_G1[1])/2,15)
+  }
+
   
   data.frame(toy_stations,toy_catchmnt,toy_live,toy_G1)
 }
 
-make_toy(10)
+make_toy(10, use_norm = TRUE)
 
 #Now, instead of looking at results individually, let's see what the range of possibilities are based on these parameters.
 
@@ -87,38 +94,62 @@ for(i in 1:model_runs){ #For every model run...
 
 length(Pval[Pval < 0.05])/model_runs
 
-points(Fstat,Pval,col="green")
+#points(Fstat,Pval,col="green")
 #hist(Fstat)
 
 #We can loop this one more time and save our model runs at different levels of sampling effort (toy_size)
 
-sampling_bins = seq(10,100,5)
+sampling_bins = seq(10,500,5)
+bin_colors = heat.colors(length(sampling_bins),rev = TRUE)
 
 Pval_ratio = vector("numeric",length(sampling_bins))
 Fstat_ratio = vector("numeric",length(sampling_bins))
 mean_Pval = vector("numeric",length(sampling_bins))
 mean_Fstat = vector("numeric",length(sampling_bins))
 
+Pval_matrix = matrix(nrow = 100, ncol = length(sampling_bins))
+Fstat_matrix = matrix(nrow = 100, ncol = length(sampling_bins))
+
+plot(0,0,xlim=c(0,15),ylim=c(0,1),pch=NA)
+
 for(j in 1:length(sampling_bins)){
+  
   model_runs = 100
   toy_size = sampling_bins[j]
   Fstat = vector("numeric",model_runs)
   Pval = vector("numeric",model_runs)
   
   for(i in 1:model_runs){ #For every model run...
-    toy_data = make_toy(toy_size) #Make a toy dataset
+    toy_data = make_toy(toy_size,use_norm = TRUE) #Make a toy dataset
     toy.aov = aov(toy_data$toy_live ~ toy_data$toy_catchmnt) #Do the ANOVA on live vs G1
     toy_results = unlist(summary(toy.aov)) #Break down the results
     Fstat[i] = toy_results['F value1'] #Take F statistic and write to new variable
     Pval[i] = toy_results['Pr(>F)1'] #Take P value and write to new variable
   }
   
+  points(Fstat,Pval,pch=21,bg=bin_colors[j])
+  
   Pval_ratio[j] = length(Pval[Pval < 0.05])/model_runs
   Fstat_ratio[j] = length(Fstat[Fstat > 5])/model_runs
   mean_Pval[j] = mean(Pval)
   mean_Fstat[j] = mean(Fstat)
   
+  Pval_matrix[,j] = Pval
+  Fstat_matrix[,j] = Fstat
+  
 }
+
+plot(Pval_ratio)
+plot(Fstat_ratio)
+
+
+#What did we learn here?
+
+#There's no relationship between the number of significant results and the sample size of the toy data sets! This seems weird. 
+
+
+
+
 
 
 
