@@ -12,7 +12,7 @@ taxa_sums = apply(live,2,sum)
 
 #Let's make a toy dataset. 10 stations, 80 possible taxa.
 
-toy_n = 10
+toy_n = 50
 
 toy_stations = paste0("station", c(1:toy_n))
 toy_catchmnt = c(rep("Hills",toy_n*0.4),
@@ -57,26 +57,29 @@ make_toy = function(x, #All it needs is for us to define the sample size. Now we
                     c.probs = c(0.4,0.3,0.3),
                     use_norm = FALSE) #We define the variables in our new function here.
   { #Here is where we code out what the function does
-  toy_stations = paste0("station", c(1:toy_n))
-  toy_catchmnt = c(rep(cat.names,c.probs*toy_n))
+  toy_stations = paste0("station", c(1:x))
+  toy_catchmnt = c(rep(cat.names,c.probs*x))
   if(use_norm == FALSE){
-    toy_live = sample(c(range_live[1]:range_live[2]),toy_n)
-    toy_G1 = sample(c(range_G1[1]:range_G1[2]),toy_n)
+    toy_live = sample(c(range_live[1]:range_live[2]),x)
+    toy_G1 = sample(c(range_G1[1]:range_G1[2]),x)
   } else {
-    toy_live = rnorm(toy_n,(range_live[2]-range_live[1])/2,20)
-    toy_G1 = rnorm(toy_n,(range_G1[2]-range_G1[1])/2,15)
+    toy_live = rnorm(x,range_live[2] - ((range_live[2]-range_live[1])/2), 20)
+    toy_G1 = rnorm(x,range_G1[2] - ((range_G1[2]-range_G1[1])/2), 15)
   }
 
   
   data.frame(toy_stations,toy_catchmnt,toy_live,toy_G1)
 }
 
-make_toy(10, use_norm = TRUE)
+toy_data = make_toy(20, use_norm = TRUE)
+
+barplot(t(toy_data[,3:4]),horiz = TRUE, names.arg = toy_data$toy_stations, cex.names = 0.75, srt = 90, main = "Toy Data Boxplot",col=c(1,2))
+legend(160,9,c("Live","G1"),pch=22,pt.bg=c(1,2))
 
 #Now, instead of looking at results individually, let's see what the range of possibilities are based on these parameters.
 
-model_runs = 100 #Let's start with 10 runs.
-toy_size = 40
+model_runs = 10 #Let's start with 10 runs.
+toy_size = 100
 Fstat = vector("numeric",model_runs)
 Pval = vector("numeric",model_runs)
 
@@ -99,7 +102,7 @@ length(Pval[Pval < 0.05])/model_runs
 
 #We can loop this one more time and save our model runs at different levels of sampling effort (toy_size)
 
-sampling_bins = seq(10,500,5)
+sampling_bins = seq(10,100,10)
 bin_colors = heat.colors(length(sampling_bins),rev = TRUE)
 
 Pval_ratio = vector("numeric",length(sampling_bins))
@@ -110,7 +113,7 @@ mean_Fstat = vector("numeric",length(sampling_bins))
 Pval_matrix = matrix(nrow = 100, ncol = length(sampling_bins))
 Fstat_matrix = matrix(nrow = 100, ncol = length(sampling_bins))
 
-plot(0,0,xlim=c(0,15),ylim=c(0,1),pch=NA)
+plot(0,0,xlim=c(-5,5),ylim=c(0,1),pch=NA,xlab="F-statistic",ylab="P value")
 
 for(j in 1:length(sampling_bins)){
   
@@ -127,7 +130,7 @@ for(j in 1:length(sampling_bins)){
     Pval[i] = toy_results['Pr(>F)1'] #Take P value and write to new variable
   }
   
-  points(Fstat,Pval,pch=21,bg=bin_colors[j])
+  points(log(Fstat),Pval,pch=21,bg=bin_colors[j])
   
   Pval_ratio[j] = length(Pval[Pval < 0.05])/model_runs
   Fstat_ratio[j] = length(Fstat[Fstat > 5])/model_runs
@@ -139,16 +142,63 @@ for(j in 1:length(sampling_bins)){
   
 }
 
-plot(Pval_ratio)
-plot(Fstat_ratio)
-
+plot(sampling_bins,Pval_ratio)
+plot(sampling_bins,Fstat_ratio)
+boxplot(Pval_matrix,ylab = "P value")
 
 #What did we learn here?
 
 #There's no relationship between the number of significant results and the sample size of the toy data sets! This seems weird. 
 
+#The results tell us a couple things. F-statistic and P value show a logarithmic relationship in every set of modeled results, regardless of sample size.
 
+#The likelihood of getting a spurious P value does not go down with sample size. We are always at risk of being misled by false positives.
 
+#Let's do it again and make some real differences in the sample populations.
+
+sampling_bins = seq(10,500,10)
+bin_colors = heat.colors(length(sampling_bins),rev = TRUE)
+
+Pval_ratio = vector("numeric",length(sampling_bins))
+Fstat_ratio = vector("numeric",length(sampling_bins))
+mean_Pval = vector("numeric",length(sampling_bins))
+mean_Fstat = vector("numeric",length(sampling_bins))
+
+Pval_matrix = matrix(nrow = 100, ncol = length(sampling_bins))
+Fstat_matrix = matrix(nrow = 100, ncol = length(sampling_bins))
+
+plot(0,0,xlim=c(-5,5),ylim=c(0,1),pch=NA,xlab="F-statistic",ylab="P value")
+
+for(j in 1:length(sampling_bins)){
+  
+  model_runs = 100
+  toy_size = sampling_bins[j]
+  Fstat = vector("numeric",model_runs)
+  Pval = vector("numeric",model_runs)
+  
+  for(i in 1:model_runs){ #For every model run...
+    toy_data = make_toy(toy_size,use_norm = TRUE,range_live = c(100,150), range_G1 = c(250,300)) #Make a toy dataset
+    toy.aov = aov(toy_data$toy_live ~ toy_data$toy_catchmnt) #Do the ANOVA on live vs G1
+    toy_results = unlist(summary(toy.aov)) #Break down the results
+    Fstat[i] = toy_results['F value1'] #Take F statistic and write to new variable
+    Pval[i] = toy_results['Pr(>F)1'] #Take P value and write to new variable
+  }
+  
+  points(log(Fstat),Pval,pch=21,bg=bin_colors[j])
+  
+  Pval_ratio[j] = length(Pval[Pval < 0.05])/model_runs
+  Fstat_ratio[j] = length(Fstat[Fstat > 5])/model_runs
+  mean_Pval[j] = mean(Pval)
+  mean_Fstat[j] = mean(Fstat)
+  
+  Pval_matrix[,j] = Pval
+  Fstat_matrix[,j] = Fstat
+  
+}
+
+plot(sampling_bins,Pval_ratio)
+plot(sampling_bins,Fstat_ratio)
+boxplot(Pval_matrix,ylab = "P value")
 
 
 
