@@ -3,6 +3,7 @@
 #Let's do some basic stuff with the Gulf of Mexico data.
 
 live = read.csv('data/Live.csv', header = TRUE, row.names = "X")
+G1 = read.csv('data/G1.csv', header = TRUE, row.names = "X")
 
 stations = row.names(live)
 
@@ -199,6 +200,37 @@ for(j in 1:length(sampling_bins)){
 plot(sampling_bins,Pval_ratio)
 plot(sampling_bins,Fstat_ratio)
 boxplot(Pval_matrix,ylab = "P value")
+
+#Found a basic fix for the simple model.
+
+Hlive = toy_data[toy_data$toy_catchmnt == "Hills", 'toy_live']
+HG1 = toy_data[toy_data$toy_catchmnt == "Hills", 'toy_G1']
+all_obs = c(Hlive,HG1)
+all_class= c(rep("live",length(Hlive)),rep("dead",length(HG1)))
+
+test.aov = aov(all_obs~all_class)
+summary(test.aov)
+boxplot(all_obs ~ all_class)
+
+
+
+#Looking at some different avenues for comparing things.
+
+#Structure is off here need to work up a more interesting toy model.
+
+#What does it need to look like in the end to reflect GoM surveys?
+###Three tables (minimum)
+
+###Station by species for each class (live, G1, etc.)
+###Table of station data (coordinates, salinity, catchment, etc.)
+
+
+
+#Thus, the model data set needs to be stations, taxa, and numbers. Numbers are defined by a probability distribution.
+
+###This means that inputs need to be: stations, taxa_list, and distribution type.
+
+#Will need to make some assumptions about spatial parameters, but we can assume a sort of reasonable grid for now.
 
 
 
