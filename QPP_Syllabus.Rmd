@@ -1,0 +1,53 @@
+---
+title: "Quantitative Methods in Paleoecology"
+author: "C.A. Kiahtipes, G. Herbert"
+date: "`r Sys.Date()`"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Welcome to Quantitative Methods in Paleoecology!
+
+This course is designed to introduce you to the concepts, tools, and pitfalls of quantitative reasoning in paleosciences and Natural History. These are critical areas of research with applications for climatology, anthropology, conservation biology, and more, but they are united by a simple goal: figure out what happened and when, then use this to understand natural processes better. In this course, we will use open-access tools (R and R Studio) to develop computing skills as well as problem-solving skills.
+
+To the extent possible, I would like this course to focus on questions rather than answers. Sure, we will create some "deliverables" as we hone our skills, but at the end of these 15 weeks I'd rather you be better at asking questions than writing fluent code, making clever graphs, or handing over the most important paper ever written.
+
+### Course Outline
+
+This fifteen-week course is divided into three five-week modules. There is no magic to this, it just helps us stay sane by marking the passage of time.
+
+#### Module 1: R Basics and First Principles
+
+- Week 1: Introduction to R, learning data formats.  
+- Week 2: How do we describe relationships in the natural world?
+  - Variance and co-variance.
+  - Correlation.
+- Week 3: All knowledge is built on observation and analogy.
+  - How do we know when we've made enough observations?
+  - Populations, sample size, and probability basics.
+- Week 4: Developing and using proxies, part I
+  - Using the visible to measure the invisible.
+  - Calibrate, calibrate, calibrate.
+- Week 5: Develping and using proxies, part II
+  - Establishing similarity and differences.
+  - Factor analyses.
+
+#### Module 2: What's a Bayes?
+
+- Week 6
+- Week 7
+- Week 8
+- Week 9
+- Week 10
+
+#### Module 3: Diving in the deep end - models and model evaluation.
+
+- Week 11
+- Week 12
+- Week 13
+- Week 14
+- Week 15
+
