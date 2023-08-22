@@ -3,8 +3,8 @@ title: "Week 1 - Intro to R"
 author: "C.A. Kiahtipes"
 date: "8/15/2023"
 output:
-  pdf_document: default
   html_document: default
+  pdf_document: default
 ---
 
 ```{r setup, include=FALSE}
@@ -315,6 +315,16 @@ plot(my_list, col = my_list$col) #For some reason you do not need to call x and 
 
 Lists help us deliver multiple vectors of information at a time, which will be critical for building arrays, which is their equivalent for matrices. There are also arguments within several R functions which expect list objects.
 
+### Coding exercise
+
+We can use graph paper to come up with vectors that we can plot to draw pictures.
+
+Have the students make crude objects and then have them put them into a list and feed that into plot(). Troubleshoot pictures that fail. 
+
+### Take the following and make it into Lab 2
+
+Everything below here goes into lab 2.
+
 ### Working in R: Matrix Objects and Data Frames
 
 Matrices are tables of data, which by definition has two dimensions. This adds one more layer of complexity to our vector objects and it is worth discussing how we create and interact with these objects. In most research settings, we primarily interact with matrices. Let's use the base function matrix() to create a two-dimensional data set.
@@ -399,6 +409,14 @@ my_matrix[c(2,4,8), 3] #When can choose non-consecutive rows here with concatena
 ## TEXT IN DEVELOPMENT
 
 Much of what we end up doing in R is defining objects and then using functions to execute a set of commands against those objects.
+
+### We need a hands on activity.
+
+### We need homework for skills development.
+
+### You can use a ladder of skill development
+
+Create exercises that let students take more and more of the steps on their own.
 
 ## FAIR Principles
 
