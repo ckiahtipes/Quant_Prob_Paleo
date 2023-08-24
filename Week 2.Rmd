@@ -1,0 +1,115 @@
+---
+title: "Week 2"
+author: "C.A. Kiahtipes"
+date: "8/22/2023"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Week 2: Introduction to R, Part II
+
+### Take the following and make it into Lab 2
+
+Everything below here goes into lab 2.
+
+### Working in R: Matrix Objects and Data Frames
+
+Matrices are tables of data, which by definition has two dimensions. This adds one more layer of complexity to our vector objects and it is worth discussing how we create and interact with these objects. In most research settings, we primarily interact with matrices. Let's use the base function matrix() to create a two-dimensional data set.
+
+```{r matrix basics, echo = TRUE}
+
+my_matrix = matrix(data = c(1:10, 11:20, 111:120)) #We are using the arguments "data = " and "ncol =".
+
+is.matrix(my_matrix) #We can interrogate the object and see if it is a matrix.
+
+```
+
+Now, at this point we've made a matrix object and determined that it is indeed a matrix. Let's call the object and see our matrix looks like.
+
+```{r error matrix call, echo = TRUE}
+
+my_matrix
+
+```
+
+Because we used matrix() and fed it 30 integers, but *did not* define the number of rows or columns, R made a matrix with one column. Let's look at the arguments available in matrix and then make a more sensible matrix.
+
+```{r matrix help, echo = TRUE}
+
+help(matrix)
+
+```
+
+The help page shows us that there are five arguments we can give to matrix(), including the number of rows and columns. This will let us make a more useful matrix. We will also introduce objects to give names to our rows and columns.
+
+```{r matrix build good, echo = TRUE}
+
+my_cols = c("Species 1", "Species 2", "Species 3")
+my_rows = c("Site 1", "Site 2", "Site 3", "Site 4", "Site 5", "Site 6", "Site 7", "Site 8", "Site 9", "Site 10")
+
+my_names = list(my_rows, my_cols) #We're making a list here with the two vector objects above.
+
+my_matrix = matrix(data = c(1:10, 11:20, 111:120), ncol = 3, dimnames = my_names) #Note we don't have to specify row number.
+
+```
+
+Just like vectors, we can make empty matrices that we can populate with data later. All we need to do is specify the number of rows and columns.
+
+```{r blank matrix, echo = FALSE}
+
+my_matrix = matrix(nrow = 10, ncol = 3, dimnames = my_names)
+
+```
+
+We interact with matrices in the same way we do vectors, with one minor difference. We use the object's name plus the bracket ([]) symbol, but we need to specify the row and column position, which is done by separating them with a comma ([row, column]). We can see this in action below.
+
+```{r matrix navigation, echo = TRUE}
+
+my_matrix[,1] = 1:10 #We're taking the columns in order here
+my_matrix[,2] = 11:20
+my_matrix[,3] = 111:120
+
+#An alternative method
+
+my_matrix[,"Species 1"] = 1:10
+my_matrix[,"Species 2"] = 11:20
+my_matrix[,"Species 3"] = 111:120
+
+```
+
+The brackets also allow us to call specific sections of the data within any matrix.
+
+```{r matrix data call, echo = TRUE}
+
+my_matrix[, 1]
+
+my_matrix[1, ]
+
+my_matrix[2, 2:3]
+
+my_matrix[c(2,4,8), 3] #When can choose non-consecutive rows here with concatenate.
+
+
+```
+
+
+## TEXT IN DEVELOPMENT
+
+Much of what we end up doing in R is defining objects and then using functions to execute a set of commands against those objects.
+
+### We need a hands on activity.
+
+### We need homework for skills development.
+
+### You can use a ladder of skill development
+
+Create exercises that let students take more and more of the steps on their own.
+
+## FAIR Principles
+
+I need to include this, where is the best space to introduce?
+
+
