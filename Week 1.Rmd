@@ -416,22 +416,16 @@ text(x = my_list$x,
 
 ```
 
-<<<<<<< HEAD
 The code chunk above is a bit clumsy. Let's pull together something cleaner.
-=======
-The code chunk above is a bit clumsy. Let's pull together somethign cleaner.
->>>>>>> b654354b8c7396bba5d52c577887ff6e6cd12e1a
+
 
 
 ```{r point colors, echo = TRUE, fig.height = 8, fig.width = 8}
 
-<<<<<<< HEAD
 plot(my_list, 
      pch = 1:25, 
      col = 1:8)
-=======
-plot(my_list, pch = 1:25, col = 1:8)
->>>>>>> b654354b8c7396bba5d52c577887ff6e6cd12e1a
+
 
 ```
 
