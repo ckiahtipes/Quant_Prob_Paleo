@@ -11,7 +11,7 @@ output:
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
-## Week 1: Introduction to R
+## Week 1: Introduction to R, Part I
 
 We will use the R statistical computing environment as a learning tool for this course, with the goal that you will find coding skills and quantitative reasoning to be valuable intellectual assets in the future. Thus, we will find ourselves developing our skills using computational tools as well as our understanding of how quantitative reasoning is applied within paleoecology.
 
@@ -301,138 +301,129 @@ my_list = list(myint, mychr, mylgi, c("another", "character"), c(1,3,5))
 
 ```
 
-Let's make a more useful list to demonstrate some more of its useful features. We also can see some useful features of R Studio at this point, which highlights color names as we type them in.
+Let's make a more useful list to demonstrate some more of its useful features. We also can see some useful features of R Studio at this point, which highlights color names as we type them in. We're going to use one of R's operators "$" to call one of the entries in our list. 
 
-```{r list for plot, echo = TRUE}
+```{r list for plot, echo = TRUE, fig.height = 8, fig.width = 8}
 
-my_list = list(x = 1:10, y = 11:20, col = c("red","darkgreen"))
+my_list = list(x = 1:10, y = 11:20, col = c(1:10)) #R has basic colors encoded as numbers by default.
 
 my_list
 
-plot(my_list, col = my_list$col) #For some reason you do not need to call x and y individually.
+plot(my_list, #With a list (using variable names "x" and "y") you do not need to call x and y individually for plot().
+     col = my_list$col)  #We're calling our list of colors here. But something is wrong with the plot, can you spot it?
 
 ```
 
 Lists help us deliver multiple vectors of information at a time, which will be critical for building arrays, which is their equivalent for matrices. There are also arguments within several R functions which expect list objects.
 
-### Coding exercise
+### Coding exercise: Plotting Vectors
 
 We can use graph paper to come up with vectors that we can plot to draw pictures.
 
 Have the students make crude objects and then have them put them into a list and feed that into plot(). Troubleshoot pictures that fail. 
 
-### Take the following and make it into Lab 2
+Although there have been some nice advances to R's plotting abilities (such as the ggplot2 package), much of what we will do in this course will be done in base R. We can work as a class on translations into ggplot2.
 
-Everything below here goes into lab 2.
+Choosing to use base R as the source material for this course is necessary because this is the most stable way to code the class products for long-term use. This is generally true in coding and one must consider the shelf-life of code which has many dependencies. Dependencies are exactly that and packages will need updating with future versions of R and in cases where this doesn't happen, large swaths of dependency-laden code will become inoperable (which happened this last year - cite source). Thus, this course is written entirely in base R. We will use some select packages to execute different analyses, but we hope to understand most of our methods well enough that we may be able to write our own functions to conduct these analyses.
 
-### Working in R: Matrix Objects and Data Frames
+Now that I have scared everyone, let's do something fun. We're going to make our own vectors, put them in a list, and use them to draw pictures with the plot function. Let's get to know our options by exploring the arguments for plot(). We can submit any object as the input for an argument in plot, so long as the data to be plotted is divisible the object being submitted.
 
-Matrices are tables of data, which by definition has two dimensions. This adds one more layer of complexity to our vector objects and it is worth discussing how we create and interact with these objects. In most research settings, we primarily interact with matrices. Let's use the base function matrix() to create a two-dimensional data set.
+```{r plotting arguments 1, echo = TRUE, fig.height = 8, fig.width = 8}
 
-```{r matrix basics, echo = TRUE}
+my_list = list(x = 1:10, y = 11:20, col = c(1:5)) #Note here we're only using a list of five integers for colors.
 
-my_matrix = matrix(data = c(1:10, 11:20, 111:120)) #We are using the arguments "data = " and "ncol =".
+plot(my_list, col = my_list$col)
 
-is.matrix(my_matrix) #We can interrogate the object and see if it is a matrix.
-
-```
-
-Now, at this point we've made a matrix object and determined that it is indeed a matrix. Let's call the object and see our matrix looks like.
-
-```{r error matrix call, echo = TRUE}
-
-my_matrix
+#What's wrong with this plot?
 
 ```
 
-Because we used matrix() and fed it 30 integers, but *did not* define the number of rows or columns, R made a matrix with one column. Let's look at the arguments available in matrix and then make a more sensible matrix.
+Let's get to know some of the other arguments in plot() that will be useful to know. More important than knowing every possible argument, we're trying to learn how to use vectors of data to create visualizations. This is a key step toward communicating reliable and replicable results. Thus, we're going to make a grid of data points and then vary a few parameters across the entire grid. Then, we can examine the results and use this as a cheat sheet for future coding. We will need to use some base R functions to construct our vectors.
 
-```{r matrix help, echo = TRUE}
+Below are three methods for making our grid. We might evaluate which is best by the number of lines of code it takes, the general portability of the code (does it apply in any circumstance?), and how challenging it is to come up with. I introduce the apply() family of functions below because they are initially scary, but very useful. By combining them with custom functions, you can achieve a lot with a little.
 
-help(matrix)
+```{r lets build a grid, echo = TRUE, fig.height = 8, fig.width = 8}
 
-```
+my_list = list(x = rep(1:10,10), 
+               y = c(rep(1,10), rep(2,10), rep(3,10), rep(4,10), rep(5,10), rep(6,10), rep(7,10), rep(8,10), rep(9,10), rep(10,10))) #Functions are better here.
 
-The help page shows us that there are five arguments we can give to matrix(), including the number of rows and columns. This will let us make a more useful matrix. We will also introduce objects to give names to our rows and columns.
+#Let's build a custom funciton. It's not so scary. We tell R what to do with a vector.
 
-```{r matrix build good, echo = TRUE}
+my_grid = function(x, times = 10){
+  out = vector(mode = "numeric", length = length(x)*times) #Using length() function here. Allows us to be flexible.
+  for(i in 1:length(x)){ #Yes, we use for() loops. For every position in our vector object, we're going to use the function rep.
+    write_value = rep(x[i], times)
+    out[1:10 + ((i-1) * 10)] = write_value
+  }
+  out
+}
 
-my_cols = c("Species 1", "Species 2", "Species 3")
-my_rows = c("Site 1", "Site 2", "Site 3", "Site 4", "Site 5", "Site 6", "Site 7", "Site 8", "Site 9", "Site 10")
+my_list = list(x = rep(1:10, 10),
+               y = my_grid(1:10))
 
-my_names = list(my_rows, my_cols) #We're making a list here with the two vector objects above.
+plot(my_list)
 
-my_matrix = matrix(data = c(1:10, 11:20, 111:120), ncol = 3, dimnames = my_names) #Note we don't have to specify row number.
+#The most efficient choice is a unique class of R functions centered around apply(). Here, we use sapply() to iteratively repeat the input 10 times.
 
-```
+my_list = list(x = rep(1:10, 10),
+               y = sapply(1:10, function(x){
+                    rep(x, 10)
+                  })
+               )
 
-Just like vectors, we can make empty matrices that we can populate with data later. All we need to do is specify the number of rows and columns.
-
-```{r blank matrix, echo = FALSE}
-
-my_matrix = matrix(nrow = 10, ncol = 3, dimnames = my_names)
-
-```
-
-We interact with matrices in the same way we do vectors, with one minor difference. We use the object's name plus the bracket ([]) symbol, but we need to specify the row and column position, which is done by separating them with a comma ([row, column]). We can see this in action below.
-
-```{r matrix navigation, echo = TRUE}
-
-my_matrix[,1] = 1:10 #We're taking the columns in order here
-my_matrix[,2] = 11:20
-my_matrix[,3] = 111:120
-
-#An alternative method
-
-my_matrix[,"Species 1"] = 1:10
-my_matrix[,"Species 2"] = 11:20
-my_matrix[,"Species 3"] = 111:120
+plot(my_list)
 
 ```
 
-The brackets also allow us to call specific sections of the data within any matrix.
+Add text.
 
-```{r matrix data call, echo = TRUE}
+```{r plotting text, echo = TRUE, fig.height = 8, fig.width = 8}
 
-my_matrix[, 1]
+plot(my_list)
 
-my_matrix[1, ]
+text(x = my_list$x, #Using function text() to add text to plot. Note arguments
+     y = my_list$y+0.2, 
+     labels = 1:100, 
+     cex = 0.5) #The cex argument changes the size of what is plotted. CEX stands for "character expansion".
 
-my_matrix[2, 2:3]
-
-my_matrix[c(2,4,8), 3] #When can choose non-consecutive rows here with concatenate.
 
 
 ```
 
 
-## TEXT IN DEVELOPMENT
+Next jobs, vary inputs. "Point characters" are the symbols available in base R and there are 25 of them. 
 
-Much of what we end up doing in R is defining objects and then using functions to execute a set of commands against those objects.
+```{r point character, echo = TRUE, fig.height = 8, fig.width = 8}
 
-### We need a hands on activity.
+plot(my_list, pch = 1:25)
 
-### We need homework for skills development.
+#How do we make it so the characters show up as 4 of each in a row?
 
-### You can use a ladder of skill development
+plot(my_list, 
+     pch = sapply(1:25, function(x){
+       rep(x, 4)
+     }))
 
-Create exercises that let students take more and more of the steps on their own.
+#Can we add text to clarify? You bet!
 
-## FAIR Principles
+text(x = my_list$x,
+     y = my_list$y + 0.25,
+     labels = paste0("pch = ", 
+              sapply(1:25, function(y){ #This is the code chunk we used to get our symbols into groups of 4. 
+                rep(y, 4)
+              })),
+     cex = 0.5)
 
-I need to include this, where is the best space to introduce?
+```
 
-
-
-
-
-
-
-
-
-
+The code chunk above is a bit clumsy. Let's pull together somethign cleaner.
 
 
+```{r point colors, echo = TRUE, fig.height = 8, fig.width = 8}
+
+plot(my_list, pch = 1:25, col = 1:8)
+
+```
 
 
 
