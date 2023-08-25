@@ -351,15 +351,11 @@ Lists help us deliver multiple vectors of information at a time, which will be c
 
 ### Coding exercise: Plotting Vectors
 
-We can use graph paper to come up with vectors that we can plot to draw pictures.
-
-Have the students make crude objects and then have them put them into a list and feed that into plot(). Troubleshoot pictures that fail. 
-
 Although there have been some nice advances to R's plotting abilities (such as the ggplot2 package), much of what we will do in this course will be done in base R. We can work as a class on translations into ggplot2.
 
 Choosing to use base R as the source material for this course is necessary because this is the most stable way to code the class products for long-term use. This is generally true in coding and one must consider the shelf-life of code which has many dependencies. Dependencies are exactly that and packages will need updating with future versions of R and in cases where this doesn't happen, large swaths of dependency-laden code will become inoperable (which happened this last year - cite source). Thus, this course is written entirely in base R. We will use some select packages to execute different analyses, but we hope to understand most of our methods well enough that we may be able to write our own functions to conduct these analyses.
 
-
+We can use graph paper to come up with vectors that we can plot to draw pictures.
 
 
 
