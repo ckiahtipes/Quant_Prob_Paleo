@@ -108,8 +108,114 @@ Much of what we end up doing in R is defining objects and then using functions t
 
 Create exercises that let students take more and more of the steps on their own.
 
-## FAIR Principles
 
-I need to include this, where is the best space to introduce?
+### Cuts from Week 1
+
+
+Now that I have scared everyone, let's do something fun. We're going to make our own vectors, put them in a list, and use them to draw pictures with the plot function. Let's get to know our options by exploring the arguments for plot(). We can submit any object as the input for an argument in plot, so long as the data to be plotted is divisible the object being submitted as an argument.
+
+```{r plotting arguments 1, echo = TRUE, fig.height = 8, fig.width = 8}
+
+my_list = list(x = 1:10, y = 11:20, col = c(1:5)) #Note here we're only using a list of five integers for colors.
+
+plot(my_list, col = my_list$col)
+
+#What's wrong with this plot?
+
+```
+
+Let's get to know some of the other arguments in plot() that will be useful to know. More important than knowing every possible argument, we're trying to learn how to use vectors of data to create visualizations. This is a key step toward communicating reliable and replicable results. Thus, we're going to make a grid of data points and then vary a few parameters across the entire grid. Then, we can examine the results and use this as a cheat sheet for future coding. We will need to use some base R functions to construct our vectors.
+
+Below are three methods for making our grid. We might evaluate which is best by the number of lines of code it takes, the general portability of the code (does it apply in any circumstance?), and how challenging it is to come up with. I introduce the apply() family of functions below because they are initially scary, but very useful. By combining them with custom functions, you can achieve a lot with a little.
+
+```{r lets build a grid, echo = TRUE, fig.height = 8, fig.width = 8}
+
+my_list = list(x = rep(1:10,10), 
+               y = c(rep(1,10), rep(2,10), rep(3,10), rep(4,10), rep(5,10), rep(6,10), rep(7,10), rep(8,10), rep(9,10), rep(10,10))) #Functions are better here.
+
+#Let's build a custom funciton. It's not so scary. We tell R what to do with a vector.
+
+my_grid = function(x, times = 10){
+  out = vector(mode = "numeric", length = length(x)*times) #Using length() function here. Allows us to be flexible.
+  for(i in 1:length(x)){ #Yes, we use for() loops. For every position in our vector object, we're going to use the function rep.
+    write_value = rep(x[i], times)
+    out[1:10 + ((i-1) * 10)] = write_value
+  }
+  out
+}
+
+my_list = list(x = rep(1:10, 10),
+               y = my_grid(1:10))
+
+plot(my_list)
+
+#The most efficient choice is a unique class of R functions centered around apply(). Here, we use sapply() to iteratively repeat the input 10 times.
+
+my_list = list(x = rep(1:10, 10),
+               y = sapply(1:10, function(x){
+                    rep(x, 10)
+                  })
+               )
+
+plot(my_list)
+
+```
+
+Add text.
+
+```{r plotting text, echo = TRUE, fig.height = 8, fig.width = 8}
+
+plot(my_list)
+
+text(x = my_list$x, #Using function text() to add text to plot. Note arguments
+     y = my_list$y+0.2, 
+     labels = 1:100, 
+     cex = 0.5) #The cex argument changes the size of what is plotted. CEX stands for "character expansion".
+
+
+
+```
+
+
+Next jobs, vary inputs. "Point characters" are the symbols available in base R and there are 25 of them. 
+
+```{r point character, echo = TRUE, fig.height = 8, fig.width = 8}
+
+plot(my_list, pch = 1:25)
+
+#How do we make it so the characters show up as 4 of each in a row?
+
+plot(my_list, 
+     pch = sapply(1:25, function(x){
+       rep(x, 4)
+     }))
+
+#Can we add text to clarify? You bet!
+
+text(x = my_list$x,
+     y = my_list$y + 0.25,
+     labels = paste0("pch = ", 
+              sapply(1:25, function(y){ #This is the code chunk we used to get our symbols into groups of 4. 
+                rep(y, 4)
+              })),
+     cex = 0.5)
+
+```
+
+The code chunk above is a bit clumsy. Let's pull together something cleaner.
+
+
+
+```{r point colors, echo = TRUE, fig.height = 8, fig.width = 8}
+
+plot(my_list, 
+     pch = 1:25, 
+     col = 1:8)
+
+
+```
+
+
+
 
 

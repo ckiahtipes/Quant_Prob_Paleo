@@ -13,7 +13,7 @@ knitr::opts_chunk$set(echo = TRUE)
 
 ## Week 1: Introduction to R, Part I
 
-We will use the R statistical computing environment as a learning tool for this course, with the goal that you will find coding skills and quantitative reasoning to be valuable intellectual assets in the future. Thus, we will find ourselves developing our skills using computational tools as well as our understanding of how quantitative reasoning is applied within paleoecology.
+We will use the R statistical computing environment as a learning tool for this course, with the goal that you will find coding skills and quantitative reasoning to be valuable intellectual assets in the future. Thus, we will develop our skills using computational tools alongside our understanding of how quantitative reasoning is applied within paleoecology.
 
 ### Working in R: Troubleshooting Resources
 
@@ -23,7 +23,7 @@ https://iqss.github.io/dss-workshops/R/Rintro/base-r-cheat-sheet.pdf
 
 ### Working in R: File Management
 
-In order to access files on your computer, R needs to know where to begin its search. This is your "working directory". Weekly labs are available as .zip files or github repositories that can be checked out. Make sure that R thinks that it is located inside of this folder. Keep in mind that you may successfully open a script or markdown document, but not be able to run it because R does not know where to look for the files which support these scripts.
+In order to access files on your computer, R needs to know where to begin its search. This is your "working directory". Weekly labs are available via canvas or as github repositories that can be checked out. Make sure that R thinks that it is located inside of this folder. Keep in mind that you may successfully open a script or markdown document, but not be able to run it because R does not know where to look for the files which support these scripts.
 
 ```{r first things, echo = TRUE}
 
@@ -35,13 +35,43 @@ getwd()
 
 The R statistical computing environment operates with only a console window. This text window is where R gives you feedback and where you enter commands. The R Studio wrapper makes working in R easier by combining the console with other windows showing you important information or documents. You can use R or R Studio to follow along. You can copy-paste the code directly into the console, re-type the commands, or create an R script with your notes and code that can be run anytime.
 
-```{r console image, echo = FALSE}
+```{r screenshot of R console running solo, echo=FALSE, fig.align = 'center', fig.cap = "**Figure 4.** R Console with annotations for: A, working directory; B,  version; C, citation instructions; and D, the command line."}
 
-#PUT IMAGE CALL HERE?
+knitr::include_graphics("images/R_console.png")
 
 ```
 
+Note the following:
+-the *working directory* is the folder where R looks when it goes to find or write things (Fig. 4:A).
+-the software version is at the top of the initialization text, this information is important for citations (Fig. 4:B).
+-the intialization text includes instructions for getting information about licensing, help, and for citing R (Fig. 4:C).
+-the *command line* is the line starting with ">", which is where you politely ask R to do things for you (Fig. 4:D).
+
+You can do virtually everything you need to do in R with just the console. So long as you kept a .txt file documenting your coding steps, this would be sufficient to conduct many if not all statistical analyses being published currently. However, it is not a very *helpful* platform for coding. 
+
+R Studio is a wrapper for R that allows us to see a bit more of what is going on inside of R and to control it through the window rather than exclusively through the "console". R Studio knows the rules of R syntax, so it will flag errors for you. Much like a spell-checker in word processing, R Studio checks your code for you. More on this later. 
+
+```{r screenshot of blank R Studio, echo=FALSE, fig.align = 'center', fig.cap= "**Figure 6.** R Studio window with annotated console pane: A, working directory; B, R version; C, citation info; and D, the command line."}
+
+knitr::include_graphics("images/R_studio_basic.png")
+
+```
+
+You should have three panes open in the window, as shown in Fig 6. above. The leftmost should look familiar. It is the R console! This is where you'll enter commands to make R do things. It also shows you some of the same information, such as the location of the working directory (Fig 6:A) and command line (Fig 6:D). You may notice other tabs behind the console titled "Terminal" and "Background jobs". Stick with the console for now, but this area of the window is dedicated to what R is *doing*.  
+
+On the right, the top pane also has tabs: "Environment" (Fig 6:E), "History" (Fig 6:F), "Connections" (Fig 6:G), and "Tutorial" (Fig 6:G). We will rely on "Environment" and "History" more than the others for this tutorial. 
+
+The "Environment" allows us to see inside R's brain. Let's take a quick look at how this works by entering the same commands from our first use of base R. You can type these commands manually or copy paste them. 
+
 ### Working in R: Annotations and coding principles.
+
+Let's look at an R script which is a basic text document that you can use to track your R code. This is basically a .txt file, but R and R Studio know how to read these with some additional details that make it easier to code. My usual workflow is to develop code within a script, then I use selections of the developed code to create an R markdown document for reporting. We will deal with this later, but the labs are written in R markdown also.
+
+```{r R script image, echo = FALSE, fig.align = 'center', fig.cap = "Figure - R script example"}
+
+knitr::include_graphics("images/R_script.png")
+
+```
 
 One reason that so many scientists choose to use command-line coding languages like R for their analyses is because it creates additional transparency for their research projects. Although there is a long way to go in the publishing world, the proliferation of open-access databases, data sets, and techniques for analyzing them promises to improve the reproducibility of our work and shore up the integrity of sceintific inquiry. The problems with the integrity of the academy and scholarly research at large extends beyond the realm of computer code. But for my part I do believe that this approach *does* improve the accessibility of our work and it makes it easier for us to produce consistent and well-documented analytical results. A bonus with R is that it gives us an immense capacity to communicate our results via plotting.
 
@@ -55,11 +85,14 @@ In R, we make annotations using the hash symbol "#".
 
 ```
 
-Let's look at an R script which is a basic text document that you can use to track your R code. This is basically a .txt file, but R and R Studio know how to read these with some additional details that make it easier to code. 
+Here's an example of a developed R script that I created while planning for this course.
 
-IMG OF SCRIPT
+```{r developed script, echo = FALSE, fig.align = 'center', fig.cap = "Figure - Example of active R script."}
 
-How to use an R script for lab notes and code improvement.
+knitr::include_graphics("images/R_script-dev.png")
+
+```
+
 
 ### Working in R: Simple Grammar, Complex Outcomes
 
@@ -325,111 +358,6 @@ Have the students make crude objects and then have them put them into a list and
 Although there have been some nice advances to R's plotting abilities (such as the ggplot2 package), much of what we will do in this course will be done in base R. We can work as a class on translations into ggplot2.
 
 Choosing to use base R as the source material for this course is necessary because this is the most stable way to code the class products for long-term use. This is generally true in coding and one must consider the shelf-life of code which has many dependencies. Dependencies are exactly that and packages will need updating with future versions of R and in cases where this doesn't happen, large swaths of dependency-laden code will become inoperable (which happened this last year - cite source). Thus, this course is written entirely in base R. We will use some select packages to execute different analyses, but we hope to understand most of our methods well enough that we may be able to write our own functions to conduct these analyses.
-
-Now that I have scared everyone, let's do something fun. We're going to make our own vectors, put them in a list, and use them to draw pictures with the plot function. Let's get to know our options by exploring the arguments for plot(). We can submit any object as the input for an argument in plot, so long as the data to be plotted is divisible the object being submitted.
-
-```{r plotting arguments 1, echo = TRUE, fig.height = 8, fig.width = 8}
-
-my_list = list(x = 1:10, y = 11:20, col = c(1:5)) #Note here we're only using a list of five integers for colors.
-
-plot(my_list, col = my_list$col)
-
-#What's wrong with this plot?
-
-```
-
-Let's get to know some of the other arguments in plot() that will be useful to know. More important than knowing every possible argument, we're trying to learn how to use vectors of data to create visualizations. This is a key step toward communicating reliable and replicable results. Thus, we're going to make a grid of data points and then vary a few parameters across the entire grid. Then, we can examine the results and use this as a cheat sheet for future coding. We will need to use some base R functions to construct our vectors.
-
-Below are three methods for making our grid. We might evaluate which is best by the number of lines of code it takes, the general portability of the code (does it apply in any circumstance?), and how challenging it is to come up with. I introduce the apply() family of functions below because they are initially scary, but very useful. By combining them with custom functions, you can achieve a lot with a little.
-
-```{r lets build a grid, echo = TRUE, fig.height = 8, fig.width = 8}
-
-my_list = list(x = rep(1:10,10), 
-               y = c(rep(1,10), rep(2,10), rep(3,10), rep(4,10), rep(5,10), rep(6,10), rep(7,10), rep(8,10), rep(9,10), rep(10,10))) #Functions are better here.
-
-#Let's build a custom funciton. It's not so scary. We tell R what to do with a vector.
-
-my_grid = function(x, times = 10){
-  out = vector(mode = "numeric", length = length(x)*times) #Using length() function here. Allows us to be flexible.
-  for(i in 1:length(x)){ #Yes, we use for() loops. For every position in our vector object, we're going to use the function rep.
-    write_value = rep(x[i], times)
-    out[1:10 + ((i-1) * 10)] = write_value
-  }
-  out
-}
-
-my_list = list(x = rep(1:10, 10),
-               y = my_grid(1:10))
-
-plot(my_list)
-
-#The most efficient choice is a unique class of R functions centered around apply(). Here, we use sapply() to iteratively repeat the input 10 times.
-
-my_list = list(x = rep(1:10, 10),
-               y = sapply(1:10, function(x){
-                    rep(x, 10)
-                  })
-               )
-
-plot(my_list)
-
-```
-
-Add text.
-
-```{r plotting text, echo = TRUE, fig.height = 8, fig.width = 8}
-
-plot(my_list)
-
-text(x = my_list$x, #Using function text() to add text to plot. Note arguments
-     y = my_list$y+0.2, 
-     labels = 1:100, 
-     cex = 0.5) #The cex argument changes the size of what is plotted. CEX stands for "character expansion".
-
-
-
-```
-
-
-Next jobs, vary inputs. "Point characters" are the symbols available in base R and there are 25 of them. 
-
-```{r point character, echo = TRUE, fig.height = 8, fig.width = 8}
-
-plot(my_list, pch = 1:25)
-
-#How do we make it so the characters show up as 4 of each in a row?
-
-plot(my_list, 
-     pch = sapply(1:25, function(x){
-       rep(x, 4)
-     }))
-
-#Can we add text to clarify? You bet!
-
-text(x = my_list$x,
-     y = my_list$y + 0.25,
-     labels = paste0("pch = ", 
-              sapply(1:25, function(y){ #This is the code chunk we used to get our symbols into groups of 4. 
-                rep(y, 4)
-              })),
-     cex = 0.5)
-
-```
-
-The code chunk above is a bit clumsy. Let's pull together something cleaner.
-
-
-
-```{r point colors, echo = TRUE, fig.height = 8, fig.width = 8}
-
-plot(my_list, 
-     pch = 1:25, 
-     col = 1:8)
-
-
-```
-
-
 
 
 
