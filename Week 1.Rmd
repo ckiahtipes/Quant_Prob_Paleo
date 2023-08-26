@@ -11,6 +11,10 @@ output:
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
+## Things to add:
+
+Numbers for sections!
+
 ## Week 1: Introduction to R, Part I
 
 We will use the R statistical computing environment as a learning tool for this course, with the goal that you will find coding skills and quantitative reasoning to be valuable intellectual assets in the future. Thus, we will develop our skills using computational tools alongside our understanding of how quantitative reasoning is applied within paleoecology.
@@ -46,6 +50,8 @@ Note the following:
 -the software version is at the top of the initialization text, this information is important for citations (Fig. 4:B).
 -the intialization text includes instructions for getting information about licensing, help, and for citing R (Fig. 4:C).
 -the *command line* is the line starting with ">", which is where you politely ask R to do things for you (Fig. 4:D).
+
+#### Note how to change working directory also.
 
 You can do virtually everything you need to do in R with just the console. So long as you kept a .txt file documenting your coding steps, this would be sufficient to conduct many if not all statistical analyses being published currently. However, it is not a very *helpful* platform for coding. 
 

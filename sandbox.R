@@ -2,7 +2,7 @@
 
 #Let's do some basic stuff with the Gulf of Mexico data.
 
-live = read.csv('data/Live.csv', header = TRUE, row.names = "X")
+live = read.csv('data/Live.csv', header = TRUE, row.names = "X") #Read data.
 G1 = read.csv('data/G1.csv', header = TRUE, row.names = "X")
 
 stations = row.names(live)
