@@ -11,9 +11,7 @@ knitr::opts_chunk$set(echo = TRUE)
 
 ## Week 2: Introduction to R, Part II
 
-### Take the following and make it into Lab 2
-
-Everything below here goes into lab 2.
+Needs a transition from Week 1.
 
 ### Working in R: Matrix Objects and Data Frames
 
@@ -21,7 +19,7 @@ Matrices are tables of data, which by definition has two dimensions. This adds o
 
 ```{r matrix basics, echo = TRUE}
 
-my_matrix = matrix(data = c(1:10, 11:20, 111:120)) #We are using the arguments "data = " and "ncol =".
+my_matrix = matrix(data = c(1:10, 11:20, 111:120)) #We are using the arguments "data = ".
 
 is.matrix(my_matrix) #We can interrogate the object and see if it is a matrix.
 
@@ -95,7 +93,6 @@ my_matrix[c(2,4,8), 3] #When can choose non-consecutive rows here with concatena
 
 ```
 
-
 ## TEXT IN DEVELOPMENT
 
 Much of what we end up doing in R is defining objects and then using functions to execute a set of commands against those objects.
@@ -110,7 +107,6 @@ Create exercises that let students take more and more of the steps on their own.
 
 
 ### Cuts from Week 1
-
 
 Now that I have scared everyone, let's do something fun. We're going to make our own vectors, put them in a list, and use them to draw pictures with the plot function. Let's get to know our options by exploring the arguments for plot(). We can submit any object as the input for an argument in plot, so long as the data to be plotted is divisible the object being submitted as an argument.
 
@@ -203,7 +199,6 @@ text(x = my_list$x,
 ```
 
 The code chunk above is a bit clumsy. Let's pull together something cleaner.
-
 
 
 ```{r point colors, echo = TRUE, fig.height = 8, fig.width = 8}
