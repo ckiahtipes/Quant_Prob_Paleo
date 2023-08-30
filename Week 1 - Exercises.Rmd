@@ -121,7 +121,7 @@ Using a pad and paper, we can map out the outline of a star. I'm including a pic
 
 ```{r star photo, fig.align = "center", fig.height = 5, fig.width = 5}
 
-knitr::include_graphics("images/star.png")
+knitr::include_graphics("images/star.jpg")
 
 ```
 
@@ -184,7 +184,7 @@ Last, we can attempt something a bit more complicated. I drew a very rough-looki
 
 ```{r dino sketch, fig.align = "center", fig.height = 5, fig.width = 5}
 
-knitr::include_graphics("images/dino.png")
+knitr::include_graphics("images/dino.jpg")
 
 ```
 
