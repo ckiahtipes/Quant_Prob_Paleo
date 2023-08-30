@@ -30,3 +30,30 @@ class() #tells me the class of an object. Output = character.
 #Remember, square brackets navigate objects, parentheses are for functions.
 
 mychr[c(7, 1, 2, 9)] #We can use concatenate to extract a non-consecutive set of values from this object.
+
+#Let's try to read this out loud
+
+z[t == TRUE & myint[3:8] == 8]
+
+#WE make vectors with the vector() function.
+
+plot(my_list,
+     col = my_list$col)
+
+#Plotting exercise: Draw a thing!
+
+
+
+x <- c(0.5, 1, 1.5, 2, 2.5, 3, 3.5, 4, 4.5, 5, 5.5, 6, 6.5, 7, 7.5, 7.5, 7.5, 7.25, 7, 6.75,
+       6.5, 6.25, 6.12, 6.25, 6.5, 6.75, 7, 7.25, 7.25, 7, 6.5, 6, 5.75, 5.8, 6, 6.4, 6.1, 6.4, 5.8, 5.5,
+       5.25, 5, 4.5, 4, 3.8, 3.7, 3.5, 4, 3.6, 4, 3.5, 3.3, 3.1, 3, 2.9, 2.8, 3, 2.8, 2.5, 2,
+       1.5, 1, 0.5)
+
+y <- c(7, 6.8, 6.6, 6.5, 6.4, 6.5, 6.6, 6.7, 6.8, 7, 7.5, 8, 8.2, 8.2, 8, 7.5, 7, 6.75, 7, 6.75,
+       7, 6.9, 6.7, 6.5, 6.75, 6.5, 6.75, 6.5, 6.5, 6.3, 6.3, 6.2, 6, 5.75, 5.5, 5.5, 5.25, 5, 5.25, 5.5,
+       5.8, 5.6, 5.4, 5.4, 5, 4.5, 4, 4.1, 3.8, 3.6, 3.5, 3, 3.2, 3.4, 3.5, 4, 4.5, 5, 5.5, 6,
+       6.2, 6.5, 7)
+
+plot(x, y, type = "l")
+text(x, y+0.1, c(1:length(y)))
+

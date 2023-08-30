@@ -1,0 +1,219 @@
+---
+title: "Week 1 - Practice"
+author: "C.A. Kiahtipes"
+date: "8/30/2023"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Week 1 Practice: Drawing With Vectors
+
+### 1.1 Introduction
+
+This set of exercises is meant to help you practice some of the concepts we learned in week 1. Your challenge at the end of class was to make a line drawing, extrapolate vectors of x, y coordinates from it, and then plot it in R.
+
+#### Don't be afriad to draw it!
+
+Pencil and paper are great coding tools. Sketch your ideas, draw diagrams, and try to set some expectations for what you might see. Using any sort of ruled paper, you can map out plotting decisions and think about how to organize your data to fit within the plot's dimensions.
+
+### 1.2 Draw a Square
+
+Let's start with some basic shapes and then ramp up the complexity. What you are supposed to see here is that vectors are counts, measurements, and coordinates alike. We can store, call, and plot this data in a lot of different ways. Let's see the basic process in action.
+
+```{r simple plotting, echo = TRUE, fig.align = "center", fig.height = 5, fig.width = 5}
+
+draw_me <- list(x = c(1, 1, 2, 2), y = c(1, 2, 2, 1)) #We're just putting our two vectors into a list here.
+
+plot(draw_me)
+
+#Can be more verbose...
+
+x = c(1, 1, 2, 2)
+y = c(1, 2, 2, 1)
+
+plot(x, y)
+
+```
+
+Since we're drawing shapes, we're going to set the plot type argument to line plot (type = "l").
+
+```{r simple line plot, echo = TRUE, fig.align = "center", fig.height = 5, fig.width = 5}
+
+plot(draw_me, 
+     type = "l")
+
+
+```
+
+Our square isn't complete! It's also hard to appreciate its squareness because of the framing of the plot (R always cuts it as close as possible to the outside of the object). If we want to make the lines connect, we need to come back to the starting location again, so we need 5 positions to draw our square.
+
+```{r simple line plot with improvements, echo = TRUE, fig.align = "center", fig.height = 5, fig.width = 5}
+
+draw_me <- list(x = c(1, 1, 2, 2, 1), 
+                y = c(1, 2, 2, 1, 1)) #We're just putting our two vectors into a list here.
+
+
+plot(draw_me, 
+     type = "l",
+     xlim = c(0,3), #Adding plotting arguments "xlim =" and "ylim =", which allow us to define the plot window.
+     ylim = c(0,3))
+
+```
+
+### 1.3 Drawing Hexagons and Octagons
+
+Drawing some shapes from our imagination is easy enough. We can also do a hexagon using 7 digits. Below, we also label the points with the text() function. This function works with plot() and allows us to add text to the plot window. For this function, we need to feed it x and y coordinates as well as a string of labels.
+
+```{r hexagon lineplot, echo = TRUE, fig.align = "center", fig.height = 5, fig.width = 5}
+
+draw_me <- list(x = c(1, 2, 4, 5, 4, 2, 1),
+                y = c(2, 4, 4, 2, 0, 0, 2)+1)
+
+plot(draw_me,
+     type = "l",
+     xlim = c(0,6),
+     ylim = c(0,6))
+
+text(draw_me$x, #We are using text() here. We give it the same x coordinates as the drawing.
+     draw_me$y+0.1, #We give it the same y coordinates, but add a constant so the numbers sit just above the line segments.
+     labels = 1:7) #We add an integer label up to 7.
+
+```
+
+And octagons with 9 digits.
+
+```{r simple octagon, echo = TRUE, fig.align = "center", fig.height = 5, fig.width = 5}
+
+draw_me <- list(x = c(1, 1, 2, 3, 4, 4, 3, 2, 1),
+                y = c(1, 2, 3, 3, 2, 1, 0, 0, 1))
+
+plot(draw_me,
+     type = "l",
+     xlim = c(0,5),
+     ylim = c(0,5))
+
+text(draw_me$x,
+     draw_me$y+0.1,
+     labels = 1:length(draw_me$x))
+
+```
+
+### 1.4 Designing Vectors with Pen and Paper
+
+Using a pad and paper, we can map out the outline of a star. I'm including a picture from my phone as well as a sketch of my work below with plot().
+
+```{r star photo, fig.align = "center", fig.height = 5, fig.width = 5}
+
+knitr::include_graphics("images/star.png")
+
+```
+
+
+```{r drawing star plot, echo = FALSE, fig.align = "center", fig.height = 5, fig.width = 5}
+
+draw_me = list(x = c(3, 3.75, 2, 4.25, 5, 5.75, 8, 6.25, 7, 5, 3),
+               y = c(3, 5, 6, 6, 8, 6, 6, 5, 3, 4, 3))
+
+plot(draw_me,
+     type = "l",
+     xlim = c(0,10),
+     ylim = c(0,10))
+
+#Custom function to draw a grid.
+
+draw_grid = function(x, y, line_type = 3){ #Here I am naming the function and setting its arguments, R sees "draw_grid" and looks for input (x, y).
+  
+  for(i in 1:length(x)){ #For every integer up to the length of x
+    
+      lines(c(min(x),max(x)),c(y[i],y[i]), lty = line_type) #Draw a line along the x axis
+      lines(c(x[i],x[i]),c(min(y),max(y)), lty = line_type) #Draw a line along the y axis
+      
+  } #Closing loop iterating through the vector.
+
+} #Closing out function definition.
+
+draw_grid(0:10, 0:10)
+
+text(draw_me$x,
+     draw_me$y+0.2,
+     labels = 1:length(draw_me$x))
+
+```
+
+So, we take each numbered point and use this to fill in the position in our variables (x and y).
+
+```{r making vectors for star drawing, echo = TRUE, fig.align = "center", fig.height = 5, fig.width = 5}
+
+draw_me = list(x = c(3, 3.75, 2, 4.25, 5, 5.75, 8, 6.25, 7, 5, 3),
+               y = c(3, 5, 6, 6, 8, 6, 6, 5, 3, 4, 3))
+
+plot(draw_me,
+     type = "l",
+     xlim = c(0,10),
+     ylim = c(0,10))
+
+
+```
+
+Although it won't look the same, we can draw a star in the same way that we learn to by hand, through connecting five dots.
+
+```{r easy start, echo = TRUE, fig.align = "center", fig.height = 5, fig.width = 5}
+
+draw_me = list(x = c(3, 5, 7, 2, 8, 3),
+               y = c(3, 8, 3, 6, 6, 3))
+
+plot(draw_me,
+     type = "l",
+     xlim = c(0,10),
+     ylim = c(0,10))
+
+text(draw_me$x,
+     draw_me$y+0.2,
+     labels = 1:length(draw_me$x))
+
+```
+
+
+### 1.5 Drawing A Dinosaur
+
+Last, we can attempt something a bit more complicated. I drew a very rough-looking dinosaur, made some points to plot, recorded their locations, and then put together a plot.
+
+```{r dino sketch, fig.align = "center", fig.height = 5, fig.width = 5}
+
+knitr::include_graphics("images/dino.png")
+
+```
+
+And we execute this all below...
+
+```{r dinosaur plot, echo = TRUE, fig.align = "center", fig.height = 5, fig.width = 5}
+
+draw_me = list(x = c(0.5, 1, 1.5, 2, 2.5, 3, 3.5, 4, 4.5, 5, 5.5, 6, 6.5, 7, 7.5, 7.5, 7.5, 7.25, 7, 6.75,
+       6.5, 6.25, 6.12, 6.25, 6.5, 6.75, 7, 7.25, 7.25, 7, 6.5, 6, 5.75, 5.8, 6, 6.4, 6.1, 6.4, 5.8, 5.5,
+       5.25, 5, 4.5, 4, 3.8, 3.7, 3.5, 4, 3.6, 4, 3.5, 3.3, 3.1, 3, 2.9, 2.8, 3, 2.8, 2.5, 2,
+       1.5, 1, 0.5),
+       
+              y = c(7, 6.8, 6.6, 6.5, 6.4, 6.5, 6.6, 6.7, 6.8, 7, 7.5, 8, 8.2, 8.2, 8, 7.5, 7, 6.75, 7, 6.75,
+       7, 6.9, 6.7, 6.5, 6.75, 6.5, 6.75, 6.5, 6.5, 6.3, 6.3, 6.2, 6, 5.75, 5.5, 5.5, 5.25, 5, 5.25, 5.5,
+       5.8, 5.6, 5.4, 5.4, 5, 4.5, 4, 4.1, 3.8, 3.6, 3.5, 3, 3.2, 3.4, 3.5, 4, 4.5, 5, 5.5, 6,
+       6.2, 6.5, 7))
+
+
+plot(draw_me, 
+     type = "l",
+     xlim = c(0,10),
+     ylim = c(0,10))
+
+text(draw_me$x, draw_me$y+0.1, c(1:length(y))) 
+
+draw_grid(0:10, 0:10) #Calling a custom function here to draw a grid in the background.
+
+```
+
+### 1.6 Your Turn!
+
+Experiment with these methods and come up with some line art of your own. It need not be terribly complicated, but show that you can use these methods to draw something.
+
