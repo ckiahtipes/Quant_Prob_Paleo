@@ -66,15 +66,15 @@ We interact with matrices in the same way we do vectors, with one minor differen
 
 ```{r matrix navigation, echo = TRUE}
 
-my_matrix[,1] = 1:10 #We're taking the columns in order here
-my_matrix[,2] = 11:20
-my_matrix[,3] = 111:120
+my_matrix[, 1] = 1:10 #We're taking the columns in order here
+my_matrix[, 2] = 11:20
+my_matrix[, 3] = 111:120
 
-#An alternative method
+#An alternative method using column names.
 
-my_matrix[,"Species 1"] = 1:10
-my_matrix[,"Species 2"] = 11:20
-my_matrix[,"Species 3"] = 111:120
+my_matrix[, "Species 1"] = 1:10
+my_matrix[, "Species 2"] = 11:20
+my_matrix[, "Species 3"] = 111:120
 
 ```
 
@@ -88,25 +88,258 @@ my_matrix[1, ]
 
 my_matrix[2, 2:3]
 
-my_matrix[c(2,4,8), 3] #When can choose non-consecutive rows here with concatenate.
+my_matrix[c(2, 4, 8), 3] #When can choose non-consecutive rows here with concatenate.
 
 
 ```
 
-## TEXT IN DEVELOPMENT
+We can select segments of the matrix based on values in other columns of the dataset. The code below uses the values for Species 2 to select the rows of Species 1 to be displayed.
 
-Much of what we end up doing in R is defining objects and then using functions to execute a set of commands against those objects.
+```{r matrix subsetting, echo = TRUE}
 
-### We need a hands on activity.
+my_matrix[my_matrix[, "Species 2"] > 15, "Species 1"]
 
-### We need homework for skills development.
+```
 
-### You can use a ladder of skill development
+Matrix objects, like vectors, are composed of a uniform type of data - either numeric, character, or logical. If we force matrix() to take multiple kinds of input, it will default to character.
 
-Create exercises that let students take more and more of the steps on their own.
+```{r forcing matrix errors, echo = TRUE}
+
+my_matrix <- matrix(data = c(9, "A", TRUE, "words", 11, 12, 111, 134, 9, FALSE),
+       ncol = 5)
+
+is.character(my_matrix)
+
+my_matrix
+
+```
+
+We can use a matrix of logical or character variables to subset our data. Here, we use a logical statement to create a new logical object (my_logicl) that we can use to retrieve a subset of my_matrix.
+
+```{r subsetting matrix by matrix, echo = TRUE}
+
+my_matrix <- matrix(data = c(1:10, 11:20, 111:120), ncol = 3, dimnames = my_names)
+
+my_logicl <- my_matrix > 10
+
+is.logical(my_logicl)
+
+my_matrix[my_logicl]
+
+```
+
+### Data Frames
+
+R has a special class of objects that allows us to combine multiple data types and is one of the more useful object classes in R: data frames. These can be defined by calling the data frame function ("data.frame()") or you can coerce a given object into this class with "as.data.frame()". R will read some data as a data.frame by default as well, which we explore below.
+
+For now, let's construct a data frame object with some logical arguments and categorical variables.
+
+```{r making a new data frame, echo = TRUE}
+
+my_df <- data.frame(taxa_1 = c(1:10), #We're defining objects as a part of the arguments going into data.frame()
+                    taxa_2 = c(11:20),
+                    taxa_3 = c(21:30),
+                    burned = c(TRUE, TRUE, TRUE, TRUE, FALSE, FALSE, FALSE, FALSE, TRUE, FALSE),
+                    class1 = c("Oak Scrub", "Oak Scrub", "Oak Scrub", #Don't be afraid to use <shift+enter> to break down long arguments.
+                               "Pine Woodland", "Pine Woodland", 
+                               "Estuarine", "Estuarine", 
+                               "Savanna", "Savanna", "Savanna"),
+                    row.names = c("Site 1", "Site 2", "Site 3", "Site 4", "Site 5", "Site 6", "Site 7", "Site 8", "Site 9", "Site 10"))
+
+my_df
+
+```
+
+We can retrieve information a lot easier from the data.frame object. The "$" operator lets us pull individual columns from the data.frame. This also shows us that by default, R views the columns as the variables and the rows as the subjects. This is important when it comes to plotting and conducting more sophisticated analyses.
+
+```{r pulling data from data.frame, echo = TRUE}
+
+my_df$burned
+
+my_df[my_df$burned == TRUE, ]
+
+my_df[my_df$class1 == "Savanna", ]
+
+```
+
+We can even combine our subsetting calls. We will use both the "and" ("&") and the "or" ("|") operators to call different subsets of the data frame. This is also possible with a matrix, but the calls can be more cumbersome.
+
+```{r combined subsetting of data.frame, echo = TRUE}
+
+my_df[my_df$burned == FALSE & my_df$class1 == "Savanna", ]
+
+my_df[my_df$burned == FALSE | my_df$class1 == "Savanna", ]
 
 
-### Cuts from Week 1
+```
+Data frames store the objects as well as their classes. You can check this using the same queries we used for vectors, supplying the column instead. Indeed, R recognizes these columns as individual vectors.
+
+```{r query data frame column, echo = TRUE}
+
+is.numeric(my_df$taxa_1)
+
+is.character(my_df$class1)
+
+is.vector(my_df$taxa_1)
+
+```
+
+We are using row and column names, which allows us to call rows and columns quickly. R has functions row.names() and colnames() which will fetch or assign row names to a matrix or data frame object. Assigning row or column names is done by supplying the "=" operator as well as a suitable vector of unique row names or any column names.
+
+```{r data frame row calls, echo = TRUE}
+
+row.names(my_df)
+
+colnames(my_df)
+
+row.names(my_df) = c("S1", "S2", "S3", "S4", "S5", "S6", "S7", "S8", "S9", "S10")
+
+colnames(my_df) = c("Cercocarpus", "Typha", "Poaceae", "Burned", "Class")
+
+my_df['S5', ]
+
+my_df[c('S5', 'S8', 'S10'), ] #We can call all of the rows for non-consecutive names.
+
+my_df[c('S5', 'S8', 'S10'), 'Class'] #We can call specific rows for non-consecutive names.
+
+```
+
+We often want to check our data to make sure that it has been read correctly or as a part of troubleshooting. We can use R functions head() and tail() to look at the bottom and the top of our data frame quickly. This will be more important later when we start working with much larger data sets.
+
+```{r heads and tails, echo = TRUE}
+
+head(my_df)
+
+tail(my_df)
+
+```
+
+### Reading Data into R
+
+In most circumstances, we will not be creating our data tables in R. It is more convenient to enter data into Microsoft Excel than it is to do so in R. Software packages that interact with spectrometers or other tools for measurement often give output in the form of a .csv or .txt file, which are readily opened with Excel and edited, checked for errors, and saved again as an .xlsx file. R can read all of these data formats, so long as you tell it what to expect.
+
+Text-based data storage requires a method for identifying columns, rows, and lines. Spaces that look blank on the screen still encode important information. We will see a few of these below.
+
+One of the most common storage formats is .csv (comma separated values). This week's lab includes a folder full of data that you can read into R. It must be named "data" and must be in your working directory. R will read it as a data frame object.
+
+```{r reading csv types, echo = TRUE}
+
+my_data = read.csv(file = "data/Fake_core.csv",
+                   header = TRUE)
+
+class(my_data)
+
+```
+
+Another common data storage format is tab-delimited text files (.txt). R has a specific funciton to read it.
+
+```{r reading tab-delimited, echo = TRUE}
+
+my_data = read.delim(file = "data/Fake_core_plus.txt",
+                     header = TRUE)
+
+class(my_data)
+
+```
+
+We can read data more generally with the read.table() function. Here, we specify the values that separate the columns, "\t" means tab-delimited, "," means comma-delimited. Note also that we can use the row.names argument to specify which column contains the row names variable in the table.
+
+```{r read table function, echo = TRUE}
+
+my_data = read.table(file = "data/Fake_core_plus.txt",
+                     header = TRUE,
+                     sep = "\t", #Here we tell the function what kind of code separates column entries
+                     row.names = "depth") #We can also specify row names when reading.
+
+class(my_data)
+
+my_data = read.table(file = "data/Fake_core.csv",
+                     header = TRUE,
+                     sep = ",",
+                     row.names = "depth")
+
+head(my_data)
+
+```
+Above, I've used a more verbose code that shows all of the details. You can simplify the arguments within R as it expects them in a certain order. This allows you to code with a bit more efficiency. The row.names argument needs to be specified. 
+
+```{r efficient data read, echo =TRUE}
+
+my_data = read.csv("data/Fake_core.csv", TRUE, row.names = "depth")
+
+```
+
+We can read xlsx file types directly, but not in base R. My preference is to use .xlsx files for data entry in the lab or for translating observations from my notebook or a device to my computer. When it is time for data analysis, I create .csv files that feed into my R workflow. 
+
+One of R's advantages is that you can use packages to install libraries of functions produced by other users. Some of these can be used to read .xlsx files with relative ease. Below, I'm using "::" operators to peek inside of one of the packages on my machine and use one of its functions - "read_xlsx()". This may not work on your machine, since you need to have the readxl package installed.
+
+```{r using readxl to open excel format, echo = TRUE}
+
+readxl::read_xlsx("data/Fake_core_plus.xlsx") #I'm hashing this out because it will require dependencies that might not yet be installed on everyone's machines.
+
+```
+
+### Useful functions in base R
+
+R gives us a lot of tools with which we can evaluate and visualize our data. These are common and useful functions that are worth committing to memory as much as possible. We can use some functions to interrogate objects and learn about their size and contents.
+
+Some useful functions for interrogating data, note that nrow() and ncol() are only useful for matrices.
+
+- class()
+- length()
+- nrow()
+- ncol()
+- max()
+- min()
+
+Here's some useful functions with logical outputs.
+
+* is.vector()
+* is.data.frame()
+* is.matrix()
+* is.character()
+* is.numeric()
+
+```{r useful interrogative functions, echo = TRUE}
+
+my_data = read.csv("data/Fake_core.csv", TRUE, row.names = "depth")
+
+my_int = 1:10
+
+class(my_data)
+
+class(my_int)
+
+length(my_int)
+
+length(my_data)
+
+ncol(my_data)
+
+nrow(my_data)
+
+max(my_int)
+
+max(my_data)
+
+```
+
+
+Useful functions for gathering insights from our data.
+
+- sum()
+- mean()
+- median()
+- mode()
+
+Useful functions with basic plots
+
+- hist()
+- barplot()
+- boxplot()
+
+
+## Exploring The plot() Function
 
 Now that I have scared everyone, let's do something fun. We're going to make our own vectors, put them in a list, and use them to draw pictures with the plot function. Let's get to know our options by exploring the arguments for plot(). We can submit any object as the input for an argument in plot, so long as the data to be plotted is divisible the object being submitted as an argument.
 
@@ -120,7 +353,7 @@ plot(my_list, col = my_list$col)
 
 ```
 
-Let's get to know some of the other arguments in plot() that will be useful to know. More important than knowing every possible argument, we're trying to learn how to use vectors of data to create visualizations. This is a key step toward communicating reliable and replicable results. Thus, we're going to make a grid of data points and then vary a few parameters across the entire grid. Then, we can examine the results and use this as a cheat sheet for future coding. We will need to use some base R functions to construct our vectors.
+Let's get to know some of the other arguments in plot() that will be useful to know. More important than knowing every possible argument, we're trying to learn how to use vectors of data to create visualizations. This is a key step toward communicating reliable and replicate-able results. Thus, we're going to make a grid of data points and then vary a few parameters across the entire grid. Then, we can examine the results and use this as a cheat sheet for future coding. We will need to use some base R functions to construct our vectors.
 
 Below are three methods for making our grid. We might evaluate which is best by the number of lines of code it takes, the general portability of the code (does it apply in any circumstance?), and how challenging it is to come up with. I introduce the apply() family of functions below because they are initially scary, but very useful. By combining them with custom functions, you can achieve a lot with a little.
 
@@ -172,7 +405,6 @@ text(x = my_list$x, #Using function text() to add text to plot. Note arguments
 
 ```
 
-
 Next jobs, vary inputs. "Point characters" are the symbols available in base R and there are 25 of them. 
 
 ```{r point character, echo = TRUE, fig.height = 8, fig.width = 8}
@@ -199,7 +431,6 @@ text(x = my_list$x,
 ```
 
 The code chunk above is a bit clumsy. Let's pull together something cleaner.
-
 
 ```{r point colors, echo = TRUE, fig.height = 8, fig.width = 8}
 
