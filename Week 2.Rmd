@@ -23,6 +23,25 @@ draw_grid = function(x, y, line_type = 3){ #Here I am naming the function and se
 
 ## Week 2: Introduction to R, Part II
 
+At the end of the week 1 exercise, I introduced a first custom function. These are handy and we will keep using them. 
+
+```{r custom function for grid drawing, echo = TRUE}
+
+draw_grid = function(x, y, line_type = 3){ #Here I am naming the function and setting its arguments, R sees "draw_grid" and looks for input (x, y).
+  
+  for(i in 1:length(x)){ #For every integer up to the length of x
+    
+      lines(c(min(x),max(x)),c(y[i],y[i]), lty = line_type) #Draw a line along the x axis
+      lines(c(x[i],x[i]),c(min(y),max(y)), lty = line_type) #Draw a line along the y axis
+      
+  } #Closing loop iterating through the vector.
+
+} #Closing out function definition.
+
+
+```
+
+
 Last week we worked with vectors and lists, eventually making it possible to make some basic plots. 
 
 ```{r dinosaur plot, echo = TRUE, fig.align = "center", fig.height = 8, fig.width = 8}

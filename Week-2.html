@@ -351,6 +351,17 @@ pre code {
 
 <div id="week-2-introduction-to-r-part-ii" class="section level2">
 <h2>Week 2: Introduction to R, Part II</h2>
+<p>At the end of the week 1 exercise, I introduced a first custom function. These are handy and we will keep using them.</p>
+<pre class="r"><code>draw_grid = function(x, y, line_type = 3){ #Here I am naming the function and setting its arguments, R sees &quot;draw_grid&quot; and looks for input (x, y).
+  
+  for(i in 1:length(x)){ #For every integer up to the length of x
+    
+      lines(c(min(x),max(x)),c(y[i],y[i]), lty = line_type) #Draw a line along the x axis
+      lines(c(x[i],x[i]),c(min(y),max(y)), lty = line_type) #Draw a line along the y axis
+      
+  } #Closing loop iterating through the vector.
+
+} #Closing out function definition.</code></pre>
 <p>Last week we worked with vectors and lists, eventually making it possible to make some basic plots.</p>
 <pre class="r"><code>draw_me = list(x = c(0.5, 1, 1.5, 2, 2.5, 3, 3.5, 4, 4.5, 5, 5.5, 6, 6.5, 7, 7.5, 7.5, 7.5, 7.25, 7, 6.75, #We open the list() function here...
        6.5, 6.25, 6.12, 6.25, 6.5, 6.75, 7, 7.25, 7.25, 7, 6.5, 6, 5.75, 5.8, 6, 6.4, 6.1, 6.4, 5.8, 5.5,
