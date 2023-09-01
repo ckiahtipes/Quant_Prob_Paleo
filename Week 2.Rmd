@@ -1,5 +1,5 @@
 ---
-title: "Week 2"
+title: "Week 2 - Intro to R, Part 2"
 author: "C.A. Kiahtipes"
 date: "8/22/2023"
 output: html_document
@@ -7,13 +7,51 @@ output: html_document
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
+
+draw_grid = function(x, y, line_type = 3){ #Here I am naming the function and setting its arguments, R sees "draw_grid" and looks for input (x, y).
+  
+  for(i in 1:length(x)){ #For every integer up to the length of x
+    
+      lines(c(min(x),max(x)),c(y[i],y[i]), lty = line_type) #Draw a line along the x axis
+      lines(c(x[i],x[i]),c(min(y),max(y)), lty = line_type) #Draw a line along the y axis
+      
+  } #Closing loop iterating through the vector.
+
+} #Closing out function definition.
+
 ```
 
 ## Week 2: Introduction to R, Part II
 
-Needs a transition from Week 1.
+Last week we worked with vectors and lists, eventually making it possible to make some basic plots. 
 
-### Working in R: Matrix Objects and Data Frames
+```{r dinosaur plot, echo = TRUE, fig.align = "center", fig.height = 8, fig.width = 8}
+
+draw_me = list(x = c(0.5, 1, 1.5, 2, 2.5, 3, 3.5, 4, 4.5, 5, 5.5, 6, 6.5, 7, 7.5, 7.5, 7.5, 7.25, 7, 6.75, #We open the list() function here...
+       6.5, 6.25, 6.12, 6.25, 6.5, 6.75, 7, 7.25, 7.25, 7, 6.5, 6, 5.75, 5.8, 6, 6.4, 6.1, 6.4, 5.8, 5.5,
+       5.25, 5, 4.5, 4, 3.8, 3.7, 3.5, 4, 3.6, 4, 3.5, 3.3, 3.1, 3, 2.9, 2.8, 3, 2.8, 2.5, 2,
+       1.5, 1, 0.5), #Note that we end with a comma here because we have to enter the y object still...
+       
+              y = c(7, 6.8, 6.6, 6.5, 6.4, 6.5, 6.6, 6.7, 6.8, 7, 7.5, 8, 8.2, 8.2, 8, 7.5, 7, 6.75, 7, 6.75,
+       7, 6.9, 6.7, 6.5, 6.75, 6.5, 6.75, 6.5, 6.5, 6.3, 6.3, 6.2, 6, 5.75, 5.5, 5.5, 5.25, 5, 5.25, 5.5,
+       5.8, 5.6, 5.4, 5.4, 5, 4.5, 4, 4.1, 3.8, 3.6, 3.5, 3, 3.2, 3.4, 3.5, 4, 4.5, 5, 5.5, 6,
+       6.2, 6.5, 7)) #Here we add the last parentheses to close out the list function call above.
+
+
+plot(draw_me, 
+     type = "l",
+     xlim = c(0,10),
+     ylim = c(0,10))
+
+text(draw_me$x, draw_me$y+0.1, c(1:length(draw_me$y))) 
+
+draw_grid(0:10, 0:10) #Calling a custom function here to draw a grid in the background.
+
+```
+
+Today, I'd like to expand on that and start working with table/matrix data organizations.
+
+### Working in R: Matrix Objects
 
 Matrices are tables of data, which by definition has two dimensions. This adds one more layer of complexity to our vector objects and it is worth discussing how we create and interact with these objects. In most research settings, we primarily interact with matrices. Let's use the base function matrix() to create a two-dimensional data set.
 
@@ -61,6 +99,8 @@ Just like vectors, we can make empty matrices that we can populate with data lat
 my_matrix = matrix(nrow = 10, ncol = 3, dimnames = my_names)
 
 ```
+
+### Working in R: Navigating Matrix Objects
 
 We interact with matrices in the same way we do vectors, with one minor difference. We use the object's name plus the bracket ([]) symbol, but we need to specify the row and column position, which is done by separating them with a comma ([row, column]). We can see this in action below.
 
@@ -128,7 +168,7 @@ my_matrix[my_logicl]
 
 ```
 
-### Data Frames
+### Working in R: Data Frames
 
 R has a special class of objects that allows us to combine multiple data types and is one of the more useful object classes in R: data frames. These can be defined by calling the data frame function ("data.frame()") or you can coerce a given object into this class with "as.data.frame()". R will read some data as a data.frame by default as well, which we explore below.
 
@@ -214,7 +254,7 @@ tail(my_df)
 
 ```
 
-### Reading Data into R
+### Working in R: Reading Data into R
 
 In most circumstances, we will not be creating our data tables in R. It is more convenient to enter data into Microsoft Excel than it is to do so in R. Software packages that interact with spectrometers or other tools for measurement often give output in the form of a .csv or .txt file, which are readily opened with Excel and edited, checked for errors, and saved again as an .xlsx file. R can read all of these data formats, so long as you tell it what to expect.
 
@@ -279,7 +319,7 @@ readxl::read_xlsx("data/Fake_core_plus.xlsx") #I'm hashing this out because it w
 
 ```
 
-### Useful functions in base R
+### Working in R: Useful functions in base R
 
 R gives us a lot of tools with which we can evaluate and visualize our data. These are common and useful functions that are worth committing to memory as much as possible. We can use some functions to interrogate objects and learn about their size and contents.
 
@@ -339,7 +379,7 @@ Useful functions with basic plots
 - boxplot()
 
 
-## Exploring The plot() Function
+## Working in R: Exploring The plot() Function
 
 Now that I have scared everyone, let's do something fun. We're going to make our own vectors, put them in a list, and use them to draw pictures with the plot function. Let's get to know our options by exploring the arguments for plot(). We can submit any object as the input for an argument in plot, so long as the data to be plotted is divisible the object being submitted as an argument.
 
