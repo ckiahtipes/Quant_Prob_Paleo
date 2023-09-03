@@ -1,0 +1,30 @@
+---
+title: "Week 3 - Probability Thinking"
+author: "C.A. Kiahtipes"
+date: "9/2/2023"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+
+
+```
+
+## Week 3 - Probability Thinking with R
+
+There are some base R functions that make good tools for exploring how probability works and for visualizing what we are talking about. Now that we are famliar with how to construct the basic object types in R and how to subset them, we can use some other useful functions to gather *descriptive statistics* from a dataset. We will read the fake pollen dataset from last week and use some functions to gather insights.
+
+```{r cars}
+summary(cars)
+```
+
+## Including Plots
+
+You can also embed plots, for example:
+
+```{r pressure, echo=FALSE}
+plot(pressure)
+```
+
+Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.

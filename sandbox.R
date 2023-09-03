@@ -212,8 +212,6 @@ test.aov = aov(all_obs~all_class)
 summary(test.aov)
 boxplot(all_obs ~ all_class)
 
-
-
 #Looking at some different avenues for comparing things.
 
 #Structure is off here need to work up a more interesting toy model.
@@ -232,6 +230,31 @@ boxplot(all_obs ~ all_class)
 
 #Will need to make some assumptions about spatial parameters, but we can assume a sort of reasonable grid for now.
 
+### New Section - Coming up with a sampling scheme for critters on a map.
+
+#We need to build a map object that holds key details.
+
+fake_map = data.frame(x = rep(c(1:10), 10), #X grid coordinates up to desired sample size. Could modify to use another object.
+                      y = as.vector(sapply(1:10, function(x){ #Y grid needs to be groups of 10 digits ascending to max.
+                        rep(x, 10)
+                      })),
+                      elevation = as.vector(sapply(seq(10, 100, 10), function(x){ #Going to use elevation as an environmental gradient for dispersing taxa.
+                        rep(x, 10)
+                      })),
+                      substrate = c(rep("clay", 20), rep("silt",40), rep("sand",40))) #Going to use this as taphonomic barrier.
+
+palette(heat.colors(max(fake_map$elevation)))
+
+substrates = unique(fake_map$substrate)
+
+subst_vals = vector("numeric", length(fake_map$x))
+
+for(i in 1:length(substrates)){
+  subst_vals[fake_map$substrate == substrates[i]] = i
+}
+
+
+plot(fake_map$x, fake_map$y, pch = 20+subst_vals, bg = fake_map$elevation)
 
 
 
