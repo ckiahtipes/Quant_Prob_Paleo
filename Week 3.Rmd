@@ -11,20 +11,163 @@ knitr::opts_chunk$set(echo = TRUE)
 
 ```
 
-## Week 3 - Probability Thinking with R
+## Week 3 - Statistics and Probability Thinking with R
 
-There are some base R functions that make good tools for exploring how probability works and for visualizing what we are talking about. Now that we are famliar with how to construct the basic object types in R and how to subset them, we can use some other useful functions to gather *descriptive statistics* from a dataset. We will read the fake pollen dataset from last week and use some functions to gather insights.
+There are some base R functions that make good tools for exploring how probability works and for visualizing the properties of our data sets. Now that we are familiar with how to construct the basic object types in R and how to subset them, we can use some other useful functions to gather *descriptive statistics* from a data set. 
 
-```{r cars}
-summary(cars)
+WE NEED A WRAP UP OF WHAT WE'VE LEARNED IN THE LAST TWO WEEKS - WHAT ARE KEY POINTS?
+
+### Introduction and Outline
+
+The basic purpose of statistics is the collection, organization, and interpretation of data. These are interrelated concepts, so we will build our knowledge gradually in each domain, rather than attempt to master data collection (i.e. sampling and populations) before we advance to data organization.
+
+We need to state some assumptions at the outset.
+
+* We have identified every single fossil in the sample (fossil population)
+* All of the identifications are correct.
+
+### Data Collection
+
+We have already introduced a range of data types as we've become more familiar with R objects. It is helpful to have a working definition of major types of data in mind as we move forward.
+
+Our primary interest is in measuring variation and those categories within which we expect more than two states are defined as *variables*. A strong proportion of paleoecology research is conducted by counting the number of different types of fossil organisms, making each taxon a different variable. These are *fossil variables* (this is my term!)
+
+* Identifications
+* Counts
+* Morphometrics
+* Categorical Assessments (binary or nominal scales)
+
+The other set of variables we are interested in relate to the sites/strata from which we collect this data. These data may be: synchronic, (coming from the present) describing present conditions of the site ; or diachronic, describing changes through time in parallel to the fossil variables. These are *site variables* (again, my terms). We've described some of the variables we might derive from sites/strata:
+
+* Temperature
+* Elevation (continuous numeric, interval scale)
+* pH (continuous numeric, log scale)
+* Sediment Composition (numeric continous interval, then ratio scale)
+* Chemistry (i.e. dissolved O2).
+
+There are lots of kinds of data that we might collect, which we arrange in different ways. We can get a clearer sense of the importance of how data organization impacts subsequent analyses and interpretation.
+
+### Reading Data and Producing Descriptive Statistics
+
+We will read the fake pollen data set from last week and use some functions to gather insights. We are taking for granted how many variables we are looking at here and how many samples we have collected. We will come back to populations and sampling a little later. For now, let's concern ourselves with taking some basic measurements from our data set.
+
+```{r reading fake core data, echo = TRUE}
+
+fake_core <- read.csv("data/Fake_core.csv",
+         header = TRUE,
+         row.names = "depth")
+
+ncol(fake_core) #How many variables?
+
+nrow(fake_core) #How many samples?
+
 ```
 
-## Including Plots
+Descriptive statistics can offer some intitial insights into numeric variables. Let's look at a handful of basic functions for deriving these descriptive statistics. Let's derive these for one of the classes of fossils, "Cyperaceae undiff.".
 
-You can also embed plots, for example:
+```{r additive statistics, echo = TRUE}
 
-```{r pressure, echo=FALSE}
-plot(pressure)
+sum(fake_core$Cyperaceae.undiff.)
+
+mean(fake_core$Cyperaceae.undiff.)
+
+median(fake_core$Cyperaceae.undiff.)
+
 ```
 
-Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
+These basic statistics show us a few things about our data. We can plot the distribution of Cyperaceae undiff. counts across the 100 samples and show where the median and the mean fall along this scatter plot.
+
+```{r basic insights, echo = TRUE, fig.align = "center", fig.height = 6, fig.width = 6}
+
+plot(fake_core$Cyperaceae.undiff.,
+     100:1,
+     xlim = c(0, 50),
+     pch = 21)
+
+lines(c(mean(fake_core$Cyperaceae.undiff.),
+        mean(fake_core$Cyperaceae.undiff.)),
+      c(0, 100),
+      lty = 3)
+
+lines(c(median(fake_core$Cyperaceae.undiff.),
+        median(fake_core$Cyperaceae.undiff.)),
+      c(0, 100),
+      lty = 2)
+
+
+```
+
+NEED TO VISUALIZE OTHER KINDS OF DISTRIBUTIONS (SKEWED, etc.)
+
+
+
+### Frequency Distributions
+
+Let's find out what the overall picture of fossil identifications from this site looks. In our imaginary dataset, fossil identifications are distributed evenly across a 2-meter sedimentary sequence. We want to know a bit more about our total observations, so let's calculate a sum from the table.
+
+One of the first questions we might ask is about the *frequency distribution* of a given variable. We can get a sense of this quickly with the histogram function ("hist()"). 
+
+```{r frequency distributions, echo = TRUE, fig.align = "center", fig.height = 12, fig.width = 6}
+
+par(mfrow = c(2, 1))
+
+plot(fake_core$Cyperaceae.undiff.,
+     100:1,
+     xlim = c(0, 50),
+     pch = 19)
+
+lines(c(mean(fake_core$Cyperaceae.undiff.),
+        mean(fake_core$Cyperaceae.undiff.)),
+      c(0, 100),
+      lty = 3)
+
+lines(c(median(fake_core$Cyperaceae.undiff.),
+        median(fake_core$Cyperaceae.undiff.)),
+      c(0, 100),
+      lty = 2)
+
+#barplot(table(fake_core$Cyperaceae.undiff.))
+
+hist(fake_core$Cyperaceae.undiff., 
+     breaks = 10,
+     xlim = c(0,50))
+
+par(mfrow = c(1, 1))
+
+```
+
+### More Descriptive Statistics
+
+Now that we have an idea of how we can view our counts as frequency distributions, we can explore some more ways to describe these results.
+
+* Standard deviations
+* Variance
+* 
+
+### Box-and-Whisker Plots
+
+These are useful plots for showing us the basic contours of our data.
+
+```{r generic baw plot, echo = TRUE, fig.align = "center", fig.height = 5, fig.width = 10}
+
+par(mar = c(5, 6, 4, 2) + 0.1)
+
+boxplot(fake_core, 
+        horizontal = TRUE, 
+        las = 2, 
+        cex.axis = 0.5)
+
+par(mar = c(5, 4, 4, 2) + 0.1)
+
+```
+
+
+
+
+
+
+
+
+
+
+

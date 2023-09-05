@@ -1,0 +1,112 @@
+---
+title: "Week 2 - Exercises"
+author: "C.A. Kiahtipes, G. Herbert"
+date: "`r Sys.Date()`"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+
+knitr::opts_chunk$set(echo = TRUE)
+
+
+```
+
+## Week 3 Exercises
+
+We learned about making matrix and data frame objects this last week and we also made some minor expansions to our plotting skills. I'd like to carry this forward a litle bit with this week's exercise. We're going to put together a matrix of data to be plotted, improving our simple picture from last week.
+
+My specific assignment to all of you was to make some kind of improvements on your previous plot by using the various arguments avaialable in plot(). In this case, let's start with our dinosaur and make some improvements.
+
+```{r starting plot, echo = TRUE}
+
+
+draw_me = list(x = c(0.5, 1, 1.5, 2, 2.5, 3, 3.5, 4, 4.5, 5, 5.5, 6, 6.5, 7, 7.5, 7.5, 7.5, 7.25, 7, 6.75, #We open the list() function here...
+       6.5, 6.25, 6.12, 6.25, 6.5, 6.75, 7, 7.25, 7.25, 7, 6.5, 6, 5.75, 5.8, 6, 6.4, 6.1, 6.4, 5.8, 5.5,
+       5.25, 5, 4.5, 4, 3.8, 3.7, 3.5, 4, 3.6, 4, 3.5, 3.3, 3.1, 3, 2.9, 2.8, 3, 2.8, 2.5, 2,
+       1.5, 1, 0.5), #Note that we end with a comma here because we have to enter the y object still...
+       
+              y = c(7, 6.8, 6.6, 6.5, 6.4, 6.5, 6.6, 6.7, 6.8, 7, 7.5, 8, 8.2, 8.2, 8, 7.5, 7, 6.75, 7, 6.75,
+       7, 6.9, 6.7, 6.5, 6.75, 6.5, 6.75, 6.5, 6.5, 6.3, 6.3, 6.2, 6, 5.75, 5.5, 5.5, 5.25, 5, 5.25, 5.5,
+       5.8, 5.6, 5.4, 5.4, 5, 4.5, 4, 4.1, 3.8, 3.6, 3.5, 3, 3.2, 3.4, 3.5, 4, 4.5, 5, 5.5, 6,
+       6.2, 6.5, 7)) #Here we add the last parentheses to close out the list function call above.
+
+
+plot(draw_me, 
+     type = "l",
+     xlim = c(0,10),
+     ylim = c(0,10))
+
+
+```
+
+Again, we've made a list object and plot() is kind enough to read the x and y objects within the list automatically. We could also organize our data as a data.frame. We will make use of some other handy base R functions to help us fill out our data frame. We will use rep() and length() below. We use rep() to repeat a single string, set of integers, or a concatenated list of binary, numeric, or character data.
+
+Let's look at rep() and length below. 
+
+```{r using rep, echo = TRUE}
+
+rep(x = "thing", times = 2) #Typical arguments for rep(), which repeats input a given number of times.
+
+things <- rep("thing", 5) #We can use shorthand and skip defining the arguments "x = " and "times ="
+
+things
+
+```
+
+With this in hand, we can combine length() and rep() to give us a vector that matches the length of another object. Because we're often using objects of identical lengths, this is a simple, but poweful tool for helping us build out data sets in R.
+
+```{r using length, echo = TRUE}
+
+length(things)
+
+length(draw_me$x)
+
+```
+
+
+
+```{r dino vectors as data frame, echo = TRUE}
+
+dino_color <- rep("darkgreen", length(draw_me$x))
+
+dino_frame <- data.frame(x = c(0.5, 1, 1.5, 2, 2.5, 3, 3.5, 4, 4.5, 5, 5.5, 6, 6.5, 7, 7.5, 7.5, 7.5, 7.25, 7, 6.75, #We open the list() function here...
+       6.5, 6.25, 6.12, 6.25, 6.5, 6.75, 7, 7.25, 7.25, 7, 6.5, 6, 5.75, 5.8, 6, 6.4, 6.1, 6.4, 5.8, 5.5,
+       5.25, 5, 4.5, 4, 3.8, 3.7, 3.5, 4, 3.6, 4, 3.5, 3.3, 3.1, 3, 2.9, 2.8, 3, 2.8, 2.5, 2,
+       1.5, 1, 0.5), #Note that we end with a comma here because we have to enter the y object still...
+       
+              y = c(7, 6.8, 6.6, 6.5, 6.4, 6.5, 6.6, 6.7, 6.8, 7, 7.5, 8, 8.2, 8.2, 8, 7.5, 7, 6.75, 7, 6.75,
+       7, 6.9, 6.7, 6.5, 6.75, 6.5, 6.75, 6.5, 6.5, 6.3, 6.3, 6.2, 6, 5.75, 5.5, 5.5, 5.25, 5, 5.25, 5.5,
+       5.8, 5.6, 5.4, 5.4, 5, 4.5, 4, 4.1, 3.8, 3.6, 3.5, 3, 3.2, 3.4, 3.5, 4, 4.5, 5, 5.5, 6,
+       6.2, 6.5, 7),
+       
+       dino_color)
+
+head(dino_frame) #Check the contents of our new data.frame object.
+
+```
+
+Now that we've added some colors to the data frame, let's try and quickly plot this.
+
+```{r plotting dinosaur with color, echo = TRUE}
+
+plot(x = dino_frame$x, 
+     y = dino_frame$y, 
+     col = dino_frame$dino_color)
+
+```
+
+
+### Plot Arguments and Parameter Options
+
+
+
+```{r improvement options, echo = TRUE}
+
+plot(x = dino_frame$x, 
+     y = dino_frame$y, 
+     col = dino_frame$dino_color)
+
+```
+
+
