@@ -99,14 +99,46 @@ plot(x = dino_frame$x,
 
 ### Plot Arguments and Parameter Options
 
-
+We can use the arguments which go into the plot() function to make changes to our plot. Let's use "xlab = " and "ylab = " to make our plot nicer. We add a main title to the plot with the argument "main =".
 
 ```{r improvement options, echo = TRUE}
 
 plot(x = dino_frame$x, 
-     y = dino_frame$y, 
-     col = dino_frame$dino_color)
+     y = dino_frame$y,
+     type = "l",
+     col = dino_frame$dino_color,
+     xlab = "horizontal-saurus",
+     ylab = "vertical-saurus",
+     main = "Dinosaur Plot")
 
 ```
 
+We can add more data to a plot by using functions points() and lines(). 
+
+```{r adding points to plot, echo = TRUE}
+
+points(6.5, 7.5, col = "red") #Notice that R studio is coloring our text color assignments for us! 
+
+```
+
+We can also add lines. The lines function expects you to give it the x and y values for the starting and ending points of your line. This means R expects to read x =  (x1, x2) and then y = (y1, y2). 
+
+```{r adding lines to plot, echo = TRUE}
+
+lines(x = c(0, 8),
+      y = c(4, 4),
+      lty = 3,
+      col = "brown") #Here we are defining the line type "lty".
+
+```
+
+Let's made this more interesting.
+
+```{r adding more detailed lines and points, echo = TRUE}
+
+lines(x = seq(from = 0, to = 7.5, by = 0.5),
+      y = rep(c(4, 4.5, 4, 3.5), 4),
+      col = "green")
+
+```
 
