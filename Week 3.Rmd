@@ -63,7 +63,7 @@ nrow(fake_core) #How many samples?
 
 ```
 
-Descriptive statistics can offer some intitial insights into numeric variables. Let's look at a handful of basic functions for deriving these descriptive statistics. Let's derive these for one of the classes of fossils, "Cyperaceae undiff.".
+Descriptive statistics can offer some initial insights into numeric variables. Let's look at a handful of basic functions for deriving these descriptive statistics. Let's derive these for one of the classes of fossils, "Cyperaceae undiff.".
 
 ```{r additive statistics, echo = TRUE}
 
@@ -161,8 +161,56 @@ par(mar = c(5, 4, 4, 2) + 0.1)
 
 ```
 
+There are some more useful ways to visualize our data, however. We can use kernel density plots to look at overall distributions of data in a more detailed way. This also helps us get a sense of how normally distributed the data actually are.
+
+```{r quick kernal density plot, echo = TRUE, fig.align = "center", fig.height = 5, fig.width = 5}
 
 
+
+dens_plot = lapply(fake_core, function(x){
+  density(x)
+})
+
+par(mar = c(5, 6, 4, 2) + 0.1)
+
+boxplot(fake_core, 
+        horizontal = TRUE, 
+        las = 2, 
+        cex.axis = 0.5,
+        main = "Boxplots and Kernel Densities")
+
+for(i in 1:length(dens_plot)){
+  ylines = (dens_plot[[i]][['y']]/max(dens_plot[[i]][['y']]))*0.5
+  lines(dens_plot[[i]][['x']], ylines + i, lty = 3, col = "blue")
+}
+
+par(mar = c(5, 4, 4, 2) + 0.1)
+
+
+
+```
+
+You could also use the violplot method, which uses these densities to create boxplots where the margins are polygons shaped like the densities.
+
+```{r violin plots, echo = TRUE, fig.align = "center", fig.height = 5, fig.width = 5}
+
+par(mar = c(5, 6, 4, 2) + 0.1)
+
+vioplot::vioplot(fake_core, 
+        horizontal = TRUE, 
+        las = 2, 
+        cex.axis = 0.5,
+        col = "gold")
+
+for(i in 1:length(dens_plot)){
+  ylines = (dens_plot[[i]][['y']]/max(dens_plot[[i]][['y']]))*0.5
+  lines(dens_plot[[i]][['x']], ylines + i, lty = 3, col = "blue")
+}
+
+par(mar = c(5, 4, 4, 2) + 0.1)
+
+
+```
 
 
 
