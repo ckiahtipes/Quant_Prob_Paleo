@@ -8,7 +8,6 @@ output: html_document
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
 
-
 ```
 
 ## Week 3 - Statistics and Probability Thinking with R
@@ -25,6 +24,19 @@ We need to state some assumptions at the outset.
 
 * We have identified every single fossil in the sample (fossil population)
 * All of the identifications are correct.
+
+### Downloading R Packages
+
+There is a ton of user-generated code out there that we can use on our own data. One way this code is distributed is through packages, which are hosted by CRAN. Authors of the packages are trusted to maintain them and this does not always happen, so be careful how many dependencies you write into your code. For today's lab, we need to use one of the functions from the "vioplot" package. Use the code below to make sure it is installed and, if not, download the package.
+
+```{r downloading necessary packages, echo = TRUE}
+
+packages <- c("vioplot") #Make an object listing packages
+
+install.packages(setdiff(packages, row.names(installed.packages()))) #Install any packages that are in the object, but not fount on your  machine.
+
+```
+
 
 ### Data Collection
 
@@ -61,21 +73,85 @@ ncol(fake_core) #How many variables?
 
 nrow(fake_core) #How many samples?
 
+sum(fake_core) #This is the sum of all the values in the table.
+
+mean(fake_core) #Mean value for all values in table.
+
 ```
 
-Descriptive statistics can offer some initial insights into numeric variables. Let's look at a handful of basic functions for deriving these descriptive statistics. Let's derive these for one of the classes of fossils, "Cyperaceae undiff.".
+Descriptive statistics can offer some initial insights into numeric variables. Let's look at a handful of basic functions for deriving these descriptive statistics. Let's derive these for one of the classes of fossils, "Cyperaceae undiff.". These can be computed with some base R functions, but we will also derive these manually to be sure we understand these measurements.
 
-```{r additive statistics, echo = TRUE}
+```{r deriving means, echo = TRUE}
 
 sum(fake_core$Cyperaceae.undiff.)
 
 mean(fake_core$Cyperaceae.undiff.)
 
-median(fake_core$Cyperaceae.undiff.)
+sum(fake_core$Cyperaceae.undiff.)/length(fake_core$Cyperaceae.undiff.) #Mean is sum of observations divided by number of observations.
 
 ```
 
-These basic statistics show us a few things about our data. We can plot the distribution of Cyperaceae undiff. counts across the 100 samples and show where the median and the mean fall along this scatter plot.
+
+The median value is the middle value of the ranked values for a given variable. It's the value where 50% of the observations fall above and below it. This also teaches us a couple of new useful base R functions (unique() and order())
+
+```{r deriving median, echo = TRUE}
+
+median(fake_core$Cyperaceae.undiff.)
+
+vls_cyp <- unique(fake_core$Cyperaceae.undiff.) #Unique lets us get all of the unique values from our variable.
+
+vls_cyp
+
+ord_cyp <- vls_cyp[order(vls_cyp)] #Here, we are taking those values and organizing them by rank-order. This works in a cool way.
+
+ord_cyp
+
+mdn_cyp <- ord_cyp[floor(length(ord_cyp)/2)] #Here, we grab the middle value of the range of numbers. There's differences for even and odd lists of values.
+
+mdn_cyp
+
+```
+
+### Using Apply to Work Efficiently
+
+We can use the apply() function to take another function (such as mean()) and apply it iteratively to a table of data. This makes our lives a great deal easier when working with tables of taxa. Below, we use apply, which will look for three arguments: a matrix object, a code designating rows/columns, and a function. You can substitute custom functions as well. Below, we apply sum, mean, and median to the entire fake core data set.
+
+```{r using apply and stats functions, echo = TRUE}
+
+fake_sums <- apply(fake_core, 2, sum)
+
+fake_mean <- apply(fake_core, 2, mean)
+
+fake_mode <- apply(fake_core, 2, median)
+
+```
+
+Some other functions also generate informative statistics for us. We can gather quantile estimates (fractions under which 25% of the observations fall) using summary(). Summary can also be used in the apply() format and yields a nice table if we make it an object.
+
+```{r using summary to evaluate data, echo = TRUE}
+
+summary(fake_core$Cyperaceae.undiff.)
+
+fake_smmy <- apply(fake_core, 2, summary)
+
+```
+
+Using barplot(), we can visualize this information relatively quickly.
+
+```{r barplot summary, echo = TRUE, fig.align = "center", fig.height = 8, fig.width = 10}
+
+par(mai = c(1, 2, 0.5, 0.5))
+
+barplot(fake_smmy, 
+        beside = TRUE, 
+        horiz = TRUE, 
+        las = 2)
+
+par(mar = c(5, 4, 4, 2) + 0.1)
+
+```
+
+These basic statistics show us a few things about our data. We can also plot the distribution of Cyperaceae undiff. counts across the 100 samples and show where the median and the mean fall along this scatter plot.
 
 ```{r basic insights, echo = TRUE, fig.align = "center", fig.height = 6, fig.width = 6}
 
@@ -97,11 +173,115 @@ lines(c(median(fake_core$Cyperaceae.undiff.),
 
 ```
 
-NEED TO VISUALIZE OTHER KINDS OF DISTRIBUTIONS (SKEWED, etc.)
-
-
 
 ### Frequency Distributions
+
+These counts are integers, so we could expect repetition of some numbers. Let's see what the distribution of individual counts looks like using table(), which will produce a table of counts from a vector of data.
+
+```{r distribution of integer values, echo = TRUE, fig.align = "center", fig.height = 5, fig.width = 5}
+
+plot(fake_core$Cyperaceae.undiff.,
+     100:1,
+     xlim = c(0, 50),
+     pch = 19)
+
+lines(table(fake_core$Cyperaceae.undiff.)*10,
+      lty = 3,
+      col = "darkred",
+      lwd = 1) #Adding line width argument here, lets us define the width of lines we're plotting.
+
+lines(c(mean(fake_core$Cyperaceae.undiff.),
+        mean(fake_core$Cyperaceae.undiff.)),
+      c(0, 100),
+      lty = 1,
+      lwd = 3)
+
+lines(c(median(fake_core$Cyperaceae.undiff.),
+        median(fake_core$Cyperaceae.undiff.)),
+      c(0, 100),
+      lty = 1,
+      col = "blue",
+      lwd = 3)
+
+```
+
+We can use this basic method to look at other species in our table. Let's look at *Alchornea*. 
+
+```{r Alchornea plots, echo = TRUE, fig.align = "center", fig.height = 5, fig.width = 5}
+
+#We could always copy-paste the code we just used, but if we catch ourselves copy-pasting, that means that we may be better off with a function.
+
+plot(fake_core$Alchornea,
+     100:1,
+     xlim = c(0, max(fake_core$Alchornea)),
+     pch = 19)
+
+lines(table(fake_core$Alchornea)*10,
+      lty = 3,
+      col = "darkred",
+      lwd = 1) #Adding line width argument here, lets us define the width of lines we're plotting.
+
+lines(c(mean(fake_core$Alchornea),
+        mean(fake_core$Alchornea)),
+      c(0, 100),
+      lty = 1,
+      lwd = 3)
+
+lines(c(median(fake_core$Alchornea),
+        median(fake_core$Alchornea)),
+      c(0, 100),
+      lty = 1,
+      col = "blue",
+      lwd = 3)
+
+```
+
+When looking for ways to build functions, look for repetitions. We repeat the variable (Alchornea) and the functions applied to it. So what if R took any vector and ran all of these commands?
+
+```{r Plotting frequencies and values with functions, echo = TRUE}
+
+cust_plot = function(x){
+  par(mfrow = c(3, 3))
+  title_names = colnames(x)
+  for(i in 1:ncol(x)){
+    plot(x[,i],
+       1:length(x[,i]),
+       xlim = c(0, max(x[,i])),
+       pch = 19,
+       xlab = "NISP",
+       ylab = "sample")
+  
+  lines(rep(mean(x[,i]),2),
+        c(0, length(x[,i])),
+        lwd = 3)
+  
+  lines(rep(median(x[,i]),2),
+        c(0, length(x[,i])),
+        lwd = 3,
+        col = "blue")
+  
+  lines((table(x[,i])/sum(table(x[,i])))*100,
+        lty = 3,
+        col = "darkred",
+        lwd = 1)
+  
+  title(main = title_names[i])
+  axis(4, at = seq(10,100,10), labels = seq(0.1,1,0.1))
+  }
+  par(mfrow = c(1, 1))
+}
+
+```
+
+Now that we have a function that we can use, all we have to do is switch up the inputs. With this limited number of taxa, we can actually plot all of them simultaneously.
+
+```{r all taxa custom plots, echo = TRUE, fig.align = "center", fig.height = 10, fig.width = 10}
+
+cust_plot(fake_core)
+
+```
+
+### Histograms
 
 Let's find out what the overall picture of fossil identifications from this site looks. In our imaginary dataset, fossil identifications are distributed evenly across a 2-meter sedimentary sequence. We want to know a bit more about our total observations, so let's calculate a sum from the table.
 
@@ -140,15 +320,39 @@ par(mfrow = c(1, 1))
 
 Now that we have an idea of how we can view our counts as frequency distributions, we can explore some more ways to describe these results.
 
-* Standard deviations
 * Variance
-* 
+* Standard Deviation
+
+Base R has functions to derive all of these, but let's also derive them manually so we understand what these statistics are telling us.
+
+```{r additional statistics, echo = TRUE}
+
+sd(fake_core$Cyperaceae.undiff.) #Calling a single column
+
+fake_sds = apply(fake_core, 2, sd) #Using apply to get sds of every column
+
+fake_sds
+
+apply(fake_core, 2, var)
+
+```
+
+Standard deviations are the average deviation from the mean. We can calculate these manually to cement our knowledge. Here we apply another new function, abs(), which allows us to get absolute values.
+
+```{r manual calculation, echo = TRUE}
+
+sd_cyp <- sum(abs(fake_core$Cyperaceae.undiff. - mean(fake_core$Cyperaceae.undiff.)))/length(fake_core$Cyperaceae.undiff.)
+
+sd_cyp
+
+```
+
 
 ### Box-and-Whisker Plots
 
 These are useful plots for showing us the basic contours of our data.
 
-```{r generic baw plot, echo = TRUE, fig.align = "center", fig.height = 5, fig.width = 10}
+```{r generic box plot, echo = TRUE, fig.align = "center", fig.height = 5, fig.width = 10}
 
 par(mar = c(5, 6, 4, 2) + 0.1)
 
@@ -163,7 +367,7 @@ par(mar = c(5, 4, 4, 2) + 0.1)
 
 There are some more useful ways to visualize our data, however. We can use kernel density plots to look at overall distributions of data in a more detailed way. This also helps us get a sense of how normally distributed the data actually are.
 
-```{r quick kernal density plot, echo = TRUE, fig.align = "center", fig.height = 5, fig.width = 5}
+```{r quick kernal density plot, echo = TRUE, fig.align = "center", fig.height = 8, fig.width = 8}
 
 
 
@@ -192,7 +396,7 @@ par(mar = c(5, 4, 4, 2) + 0.1)
 
 You could also use the violplot method, which uses these densities to create boxplots where the margins are polygons shaped like the densities.
 
-```{r violin plots, echo = TRUE, fig.align = "center", fig.height = 5, fig.width = 5}
+```{r violin plots, echo = TRUE, fig.align = "center", fig.height = 8, fig.width = 8}
 
 par(mar = c(5, 6, 4, 2) + 0.1)
 
@@ -211,6 +415,8 @@ par(mar = c(5, 4, 4, 2) + 0.1)
 
 
 ```
+
+### R Methods for Sampling
 
 
 
