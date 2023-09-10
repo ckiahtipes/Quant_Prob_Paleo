@@ -14,18 +14,31 @@ knitr::opts_chunk$set(echo = TRUE)
 
 There are some base R functions that make good tools for exploring how probability works and for visualizing the properties of our data sets. Now that we are familiar with how to construct the basic object types in R and how to subset them, we can use some other useful functions to gather *descriptive statistics* from a data set. 
 
-WE NEED A WRAP UP OF WHAT WE'VE LEARNED IN THE LAST TWO WEEKS - WHAT ARE KEY POINTS?
+Weeks 1 and 2 we learned about R objects:
 
-### Introduction and Outline
+* vectors
+* lists
+* matrices
+* data frames
+
+We learned a lot of useful R functions:
+
+* is.vector()/is.character()/is.matrix()/etc.
+* class()
+* c() - concatenate
+* length() - give you the length of an object
+* rep() - repeats something a number of times
+
+### 1.1 Introduction and Outline
 
 The basic purpose of statistics is the collection, organization, and interpretation of data. These are interrelated concepts, so we will build our knowledge gradually in each domain, rather than attempt to master data collection (i.e. sampling and populations) before we advance to data organization.
 
-We need to state some assumptions at the outset.
+Today, we're working with a dataset that I generated with several plant taxa across a given depth. This basically simulates a stratigraphic study. We need to state some assumptions at the outset.
 
-* We have identified every single fossil in the sample (fossil population)
+* We have identified a sample of the fossil population.
 * All of the identifications are correct.
 
-### Downloading R Packages
+### 1.2 Downloading R Packages
 
 There is a ton of user-generated code out there that we can use on our own data. One way this code is distributed is through packages, which are hosted by CRAN. Authors of the packages are trusted to maintain them and this does not always happen, so be careful how many dependencies you write into your code. For today's lab, we need to use one of the functions from the "vioplot" package. Use the code below to make sure it is installed and, if not, download the package.
 
@@ -35,10 +48,16 @@ packages <- c("vioplot") #Make an object listing packages
 
 install.packages(setdiff(packages, row.names(installed.packages()))) #Install any packages that are in the object, but not fount on your  machine.
 
+#We can also do this manually by loading the vioplot library.
+
+library(vioplot)
+
+#vioplot::vioplot() #This lets us call a function without loading the library and is how we will use it later.
+
 ```
 
 
-### Data Collection
+### 1.3 Data Collection Concepts
 
 We have already introduced a range of data types as we've become more familiar with R objects. It is helpful to have a working definition of major types of data in mind as we move forward.
 
@@ -59,7 +78,7 @@ The other set of variables we are interested in relate to the sites/strata from 
 
 There are lots of kinds of data that we might collect, which we arrange in different ways. We can get a clearer sense of the importance of how data organization impacts subsequent analyses and interpretation.
 
-### Reading Data and Producing Descriptive Statistics
+## 2. Reading Data and Producing Descriptive Statistics
 
 We will read the fake pollen data set from last week and use some functions to gather insights. We are taking for granted how many variables we are looking at here and how many samples we have collected. We will come back to populations and sampling a little later. For now, let's concern ourselves with taking some basic measurements from our data set.
 
@@ -75,9 +94,9 @@ nrow(fake_core) #How many samples?
 
 sum(fake_core) #This is the sum of all the values in the table.
 
-mean(fake_core) #Mean value for all values in table.
-
 ```
+
+### 2.1 Descriptive Statistics
 
 Descriptive statistics can offer some initial insights into numeric variables. Let's look at a handful of basic functions for deriving these descriptive statistics. Let's derive these for one of the classes of fossils, "Cyperaceae undiff.". These can be computed with some base R functions, but we will also derive these manually to be sure we understand these measurements.
 
@@ -90,7 +109,6 @@ mean(fake_core$Cyperaceae.undiff.)
 sum(fake_core$Cyperaceae.undiff.)/length(fake_core$Cyperaceae.undiff.) #Mean is sum of observations divided by number of observations.
 
 ```
-
 
 The median value is the middle value of the ranked values for a given variable. It's the value where 50% of the observations fall above and below it. This also teaches us a couple of new useful base R functions (unique() and order())
 
@@ -112,7 +130,7 @@ mdn_cyp
 
 ```
 
-### Using Apply to Work Efficiently
+### 2.2 Using Apply to Work Efficiently
 
 We can use the apply() function to take another function (such as mean()) and apply it iteratively to a table of data. This makes our lives a great deal easier when working with tables of taxa. Below, we use apply, which will look for three arguments: a matrix object, a code designating rows/columns, and a function. You can substitute custom functions as well. Below, we apply sum, mean, and median to the entire fake core data set.
 
@@ -122,7 +140,7 @@ fake_sums <- apply(fake_core, 2, sum)
 
 fake_mean <- apply(fake_core, 2, mean)
 
-fake_mode <- apply(fake_core, 2, median)
+fake_median <- apply(fake_core, 2, median)
 
 ```
 
@@ -133,6 +151,8 @@ Some other functions also generate informative statistics for us. We can gather 
 summary(fake_core$Cyperaceae.undiff.)
 
 fake_smmy <- apply(fake_core, 2, summary)
+
+fake_smmy
 
 ```
 
@@ -173,8 +193,7 @@ lines(c(median(fake_core$Cyperaceae.undiff.),
 
 ```
 
-
-### Frequency Distributions
+## 3. Frequency Distributions
 
 These counts are integers, so we could expect repetition of some numbers. Let's see what the distribution of individual counts looks like using table(), which will produce a table of counts from a vector of data.
 
@@ -185,7 +204,7 @@ plot(fake_core$Cyperaceae.undiff.,
      xlim = c(0, 50),
      pch = 19)
 
-lines(table(fake_core$Cyperaceae.undiff.)*10,
+lines(table(fake_core$Cyperaceae.undiff.)*10, #Custom code to make this fit!
       lty = 3,
       col = "darkred",
       lwd = 1) #Adding line width argument here, lets us define the width of lines we're plotting.
@@ -236,6 +255,8 @@ lines(c(median(fake_core$Alchornea),
 
 ```
 
+### 3.1 Using Functions to Look at Multiple Variables
+
 When looking for ways to build functions, look for repetitions. We repeat the variable (Alchornea) and the functions applied to it. So what if R took any vector and ran all of these commands?
 
 ```{r Plotting frequencies and values with functions, echo = TRUE}
@@ -281,7 +302,7 @@ cust_plot(fake_core)
 
 ```
 
-### Histograms
+### 3.2 Histograms
 
 Let's find out what the overall picture of fossil identifications from this site looks. In our imaginary dataset, fossil identifications are distributed evenly across a 2-meter sedimentary sequence. We want to know a bit more about our total observations, so let's calculate a sum from the table.
 
@@ -316,7 +337,7 @@ par(mfrow = c(1, 1))
 
 ```
 
-### More Descriptive Statistics
+## 4. More Descriptive Statistics
 
 Now that we have an idea of how we can view our counts as frequency distributions, we can explore some more ways to describe these results.
 
@@ -337,18 +358,27 @@ apply(fake_core, 2, var)
 
 ```
 
-Standard deviations are the average deviation from the mean. We can calculate these manually to cement our knowledge. Here we apply another new function, abs(), which allows us to get absolute values.
+Standard deviations help us characterize variation in either a sample or a population of things. It is derived from some related values that are worth knowing.
+
+Methods for describing variance.
+
+* Mean absolute deviation - sum of all deviations from mean divided by number of observations. Function call = mad()
+* Variance - sum of the squared deviations from mean divided by the number of observations. Function call = var()
+* Sample Variance - identical to variance, but number of observations is corrected as (n -1). Functioncall = var()
 
 ```{r manual calculation, echo = TRUE}
 
-sd_cyp <- sum(abs(fake_core$Cyperaceae.undiff. - mean(fake_core$Cyperaceae.undiff.)))/length(fake_core$Cyperaceae.undiff.)
+mad(fake_core$Cyperaceae.undiff.)
 
-sd_cyp
+mad_cyp = sum( abs( x-median(fake_core$Cyperaceae.undiff.) ) ) / length(x)
+
+mad_cyp
 
 ```
 
+Above, we get some different results between R and a manual calculation because the mad() function uses a constant to handle large sample sizes and confounding frequency distributions.
 
-### Box-and-Whisker Plots
+### 4.1 Box-and-Whisker Plots
 
 These are useful plots for showing us the basic contours of our data.
 
@@ -364,6 +394,8 @@ boxplot(fake_core,
 par(mar = c(5, 4, 4, 2) + 0.1)
 
 ```
+
+### 4.2 Kernel Densities and Violin Plots
 
 There are some more useful ways to visualize our data, however. We can use kernel density plots to look at overall distributions of data in a more detailed way. This also helps us get a sense of how normally distributed the data actually are.
 
@@ -416,7 +448,7 @@ par(mar = c(5, 4, 4, 2) + 0.1)
 
 ```
 
-### R Methods for Sampling
+
 
 
 

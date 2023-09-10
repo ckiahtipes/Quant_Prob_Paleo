@@ -117,6 +117,14 @@ We can add more data to a plot by using functions points() and lines().
 
 ```{r adding points to plot, echo = TRUE}
 
+plot(x = dino_frame$x, 
+     y = dino_frame$y,
+     type = "l",
+     col = dino_frame$dino_color,
+     xlab = "horizontal-saurus",
+     ylab = "vertical-saurus",
+     main = "Dinosaur Plot")
+
 points(6.5, 7.5, col = "red") #Notice that R studio is coloring our text color assignments for us! 
 
 ```
@@ -125,6 +133,14 @@ We can also add lines. The lines function expects you to give it the x and y val
 
 ```{r adding lines to plot, echo = TRUE}
 
+plot(x = dino_frame$x, 
+     y = dino_frame$y,
+     type = "l",
+     col = dino_frame$dino_color,
+     xlab = "horizontal-saurus",
+     ylab = "vertical-saurus",
+     main = "Dinosaur Plot")
+
 lines(x = c(0, 8),
       y = c(4, 4),
       lty = 3,
@@ -132,13 +148,28 @@ lines(x = c(0, 8),
 
 ```
 
-Let's made this more interesting.
+Let's make this more interesting.
 
 ```{r adding more detailed lines and points, echo = TRUE}
+
+plot(x = dino_frame$x, 
+     y = dino_frame$y,
+     type = "l",
+     col = dino_frame$dino_color,
+     xlab = "horizontal-saurus",
+     ylab = "vertical-saurus",
+     main = "Dinosaur Plot")
 
 lines(x = seq(from = 0, to = 7.5, by = 0.5),
       y = rep(c(4, 4.5, 4, 3.5), 4),
       col = "green")
+
+lines(x = c(0, 8),
+      y = c(4, 4),
+      lty = 3,
+      col = "brown") #Here we are defining the line type "lty".
+
+points(6.5, 7.5, col = "red") #Notice that R studio is coloring our text color assignments for us! 
 
 ```
 
