@@ -212,6 +212,172 @@ test.aov = aov(all_obs~all_class)
 summary(test.aov)
 boxplot(all_obs ~ all_class)
 
+#Let's look at how different distributions are expressed as variance.
+
+my_df = sapply(1:100, function(x){ #Using function to create progressively larger runs of numbers that are equally spaced.
+  seq(x, x*100, x)
+})
+
+apply(my_df, 2, var)
+
+plot(apply(my_df, 2, var),
+     type = "o",
+     pch = 21, 
+     bg = "orange")
+
+lines(apply(my_df, 2, mad)*1000) #Here we're adding the MAD values for the same dataset, multiplied by 1000 to make them visible.
+
+#Let's use something else to generate the data...how about repeated clusters of numbers?
+
+test_range = c(5:13)
+
+plot_var = sapply(1:100, function(test_range){
+  var(rep(test_range, test_range))
+})
+
+plot_mad = sapply(1:100, function(test_range){
+  mad(rep(test_range, test_range))
+})
+
+norm_range = c(5, 5,
+      6, 6, 6,
+      7, 7, 7, 7,
+      8, 8, 8, 8, 8,
+      9, 9, 9, 9, 9, 9,
+      10, 10, 10, 10, 10,
+      11, 11, 11, 11,
+      12, 12, 12,
+      13, 13)
+
+v_range = c(
+      5, 5, 5, 5, 5, 5,
+      6, 6, 6, 6,
+      7, 7, 7,
+      8, 8,
+      9,
+      10, 10,
+      11, 11, 11,
+      12, 12, 12, 12,
+      13, 13, 13, 13, 13)
+
+#These structures work fine.
+
+#Looking to make a custom function to plot this so I don't have to call it over and over.
+
+plot_u = sapply(1:100, function(x){
+  mean(rep(v_range, x))
+})
+
+plot_med = sapply(1:100, function(x){
+  median(rep(v_range, x))
+})
+
+plot_var = sapply(1:100, function(x){
+  var(rep(v_range, x))
+})
+
+plot_mad = sapply(1:100, function(x){
+  mad(rep(v_range, x))
+})
+
+#The exact function from the markdown doc.
+
+stat_lines = function(x,#Creating a function called "stat_lines" it expects some vector of data "x" and the following arguments
+                      times = length(x), #Setting this to "length(x)" by default, so calling this won't always be necessary. But we can add our own numbers!
+                      title = NA){ #Setting up a title object, defaulting to NA
+  
+  plot_u = sapply(1:times, function(y){ #Here's that fast custom function that creates means for the repeated set of numbers.
+    mean(rep(x, y))
+  })
+  
+  plot_med = sapply(1:times, function(y){ #Same, but for the median.
+    median(rep(x, y))
+  })
+  
+  plot_var = sapply(1:times, function(y){ #Same, but for variance.
+    var(rep(x, y))
+  })
+  
+  plot_mad = sapply(1:times, function(y){ #Same, but for median absolute deviation
+    mad(rep(x, y))
+  })
+  
+  stat_labels = c("mean", "median", "variance", "median abs. dev.")
+  
+  plot_stats = data.frame(plot_u, plot_med, plot_var, plot_mad)
+  
+  plot(0, 0, xlim = c(0, times), ylim = c(0, max(plot_stats)+1), pch = NA, xlab = "N repeats", ylab = "value", main =paste0(title," Repeated Statistics"))
+  
+  for(i in 1:ncol(plot_stats)){
+    points(plot_stats[, i], type = "o", pch = 21, lty = i, bg = i, cex = 0.7)
+    text(times*0.05+(i*(0.2*times)), min(plot_stats[, i])+(0.04*max(plot_stats)), labels = stat_labels[i])
+  }
+  
+}
+
+#Experiment in improving the function.
+
+stat_lines = function(x,#Creating a function called "stat_lines" it expects some vector of data "x" and the following arguments
+                      times = length(x), #Setting this to "length(x)" by default, so calling this won't always be necessary. But we can add our own numbers!
+                      title = NA){ #Setting up a title object, defaulting to NA
+  
+  plot_u = sapply(1:times, function(y){ #Here's that fast custom function that creates means for the repeated set of numbers.
+    mean(rep(x, y))
+  })
+  
+  plot_med = sapply(1:times, function(y){ #Same, but for the median.
+    median(rep(x, y))
+  })
+  
+  plot_var = sapply(1:times, function(y){ #Same, but for variance.
+    var(rep(x, y))
+  })
+  
+  plot_mad = sapply(1:times, function(y){ #Same, but for median absolute deviation
+    mad(rep(x, y))
+  })
+  
+  stat_labels = c("mean", "median", "variance", "median abs. dev.")
+  
+  plot_stats = data.frame(plot_u, plot_med, plot_var, plot_mad)
+  
+  plot(0, 0, xlim = c(0, times), ylim = c(0, max(plot_stats)+1), pch = NA, xlab = "N repeats", ylab = "value", main =paste0(title," Repeated Statistics"))
+  
+  for(i in 1:ncol(plot_stats)){
+    points(plot_stats[, i], type = "o", pch = 21, lty = i, bg = i, cex = 0.7)
+    text(times*0.05+(i*(0.2*times)), min(plot_stats[, i])+(0.04*max(plot_stats)), labels = stat_labels[i])
+  }
+  
+  fr_dist = table(x)
+  
+  #lines(rep(), 
+  #      as.numeric(names(fr_dist))
+  #      )
+  
+  #lines((table(x)/sum(table(x)))*100,
+  #      lty = 3,
+  #      col = "darkred",
+  #      lwd = 1)
+  
+  barplot((table(x)/sum(table(x)))*100, horiz = TRUE, add = TRUE, axes = FALSE, ann = FALSE, axisnames = FALSE)
+  
+}
+
+#Making different distributions 
+
+# Grid of X-axis values
+x <- seq(0, 8, 0.1)
+
+# lambda = 2
+plot(x, dexp(x, 2), type = "l",
+     ylab = "", lwd = 2, col = "red")
+# lambda = 1
+lines(x, dexp(x, rate = 1), col = "blue", lty = 1, lwd = 2)
+
+# Adding a legend
+legend("topright", c(expression(paste(, lambda)), "2", "1"),
+       lty = c(0, 1, 1), col = c("blue", "red"), box.lty = 0, lwd = 2)
+
 #Looking at some different avenues for comparing things.
 
 #Structure is off here need to work up a more interesting toy model.

@@ -344,7 +344,7 @@ Now that we have an idea of how we can view our counts as frequency distribution
 * Variance
 * Standard Deviation
 
-Base R has functions to derive all of these, but let's also derive them manually so we understand what these statistics are telling us.
+Base R has functions to derive both variance ("var()") and standard deviations ("sd()").
 
 ```{r additional statistics, echo = TRUE}
 
@@ -358,31 +358,12 @@ apply(fake_core, 2, var)
 
 ```
 
-Standard deviations help us characterize variation in either a sample or a population of things. It is derived from some related values that are worth knowing.
-
-Methods for describing variance.
-
-* Mean absolute deviation - sum of all deviations from mean divided by number of observations. Function call = mad()
-* Variance - sum of the squared deviations from mean divided by the number of observations. Function call = var()
-* Sample Variance - identical to variance, but number of observations is corrected as (n -1). Functioncall = var()
-
-```{r manual calculation, echo = TRUE}
-
-mad(fake_core$Cyperaceae.undiff.)
-
-mad_cyp = sum( abs( x-median(fake_core$Cyperaceae.undiff.) ) ) / length(x)
-
-mad_cyp
-
-```
-
-Above, we get some different results between R and a manual calculation because the mad() function uses a constant to handle large sample sizes and confounding frequency distributions.
-
 ### 4.1 Box-and-Whisker Plots
 
 These are useful plots for showing us the basic contours of our data.
 
 ```{r generic box plot, echo = TRUE, fig.align = "center", fig.height = 5, fig.width = 10}
+
 
 par(mar = c(5, 6, 4, 2) + 0.1)
 

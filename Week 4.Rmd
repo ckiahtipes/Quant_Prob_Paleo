@@ -1,0 +1,499 @@
+---
+title: "Week 4 - Paleoecological Reconstructions and Proxy Development II: From Distributions to Sampling"
+author: "C.A. Kiahtipes"
+date: "9/14/2023"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+
+fake_core <- read.csv("data/Fake_core.csv", #Make sure fake_core is loaded!
+         header = TRUE,
+         row.names = "depth")
+
+```
+
+## Week 4: From Distributions to Sampling
+
+### 1. Introduction
+
+As we think about time-averaging and taphonomic bias in the sedimentary record, we can use R tools to visualize these concepts. We talked last week about basic univariate statistics like means, medians, and modes. We familiarized ourselves a bit more with apply(), table(), and summary() to derive insights into the distribution of our data. We also introduced variance and standard deviations.
+
+This week, we develop our understanding of variance, deviation, and standard deviations a bit more and will learn how these descriptions of variance can help us work through some examples of how taphonomy can transform fossil communities, and how we might deal with it. We do this because the sedimentary record contains fossils that are biased by, first, biological production and, second, differential preservation. As we try to bridge ecological and paleoecoloical scales, we must translate fossil counts into landscape distributions, population estimates, or even past environmental conditions. We can understand biological production and sedimentation more clearly as sampling processes. This means that past biological populations can *never* be compared with our estimates and that we are always dealing with a biased sampling of past communities, to some degree.
+
+### 2. Describing Differences in Observation Variables
+
+Standard deviations help us characterize variation in either a sample or a population of things. It is derived from some related values that are worth knowing.
+
+Methods for describing variance.
+
+* Mean absolute deviation - sum of all deviations from mean divided by number of observations. Function call = mad()
+* Variance - sum of the squared deviations from mean divided by the number of observations. Function call = var()
+* Sample Variance - identical to variance, but number of observations is corrected as (n -1). Functioncall = var()
+
+```{r manual calculation, echo = TRUE}
+
+mad(fake_core$Cyperaceae.undiff.)
+
+mad_cyp = sum( abs(fake_core$Cyperaceae.undiff. - median(fake_core$Cyperaceae.undiff.) ) ) / length(fake_core$Cyperaceae.undiff.)
+
+mad_cyp
+
+```
+
+Above, we get some different results between R and a manual calculation because the mad() function uses a constant to adjust for "asmptotically normal consistency" (see help(mad)). Notice first that we can use mean or median to as a basis for absolute deviation for our vectors. This can be set with the "center = " and "constant = " arguments in mad() or within our manual calculation, we take the mean value of the absolute differences between the individual observations and their mean. This looks different from the formula above because I've subsumed the "sum()" and "/length(x)" functions by calling the entire calculation under "mean()". If we calculate the value manually using the median (second half of code below), we get the same value as the "mad()" function, using a constant of 1.
+
+```{r expanded manual calculations and comparison, echo = TRUE}
+
+mad(fake_core$Cyperaceae.undiff., center = mean(fake_core$Cyperaceae.undiff.), constant = 1)
+
+mad_cyp = mean(abs(fake_core$Cyperaceae.undiff. - mean(fake_core$Cyperaceae.undiff.)))
+
+mad_cyp
+
+#Now we calculate the median average deviation.
+
+mad_cyp = median(abs(fake_core$Cyperaceae.undiff - median(fake_core$Cyperaceae.undiff.)))
+
+mad_cyp
+
+mad(fake_core$Cyperaceae.undiff., constant = 1)
+
+```
+
+Here we are working with *deviation* from the mean or median. This is a logical enough way to express deviation in a set of numbers, but its applications and interpretation are limited (ex: how easy is it to compare between variables?). However, it does set the foundation of how we calculate *variance*, which is the sum of the squared deviations from the mean divided by the number of observations. For samples, we calculate the latter as the number of observations less one (N - 1). Base R has a function for variance "var()", but we can also calculate it manually.
+
+```{r variance calculations, echo = TRUE}
+
+var(fake_core$Cyperaceae.undiff.)
+
+var_cyp = mean((fake_core$Cyperaceae.undiff. - mean(fake_core$Cyperaceae.undiff.))^2)
+
+#Perhaps R calculates variance for a sample and not a population...
+
+var_cyp = sum((fake_core$Cyperaceae.undiff. - mean(fake_core$Cyperaceae.undiff.))^2)/
+  (length(fake_core$Cyperaceae.undiff.)-1) #Note that we're taking N - 1 here. 
+
+var(fake_core$Cyperaceae.undiff.)
+var_cyp
+
+```
+
+In this case, we've finally gotten identical values when compared with the base R function. But what does variance mean and how do we interpret it? R lets us generate a lot of fake and specifically structured data. Let's look at some general features of variance by looking at systematically modified input.
+
+```{r looking at variance across number ranges, echo = TRUE, fig.align = "center", fig.width = 5, fig.height = 5}
+
+my_df = sapply(1:10, function(x){ #Using function to create progressively larger runs of numbers that are equally spaced.
+    seq(x, x*100, x)
+})
+
+apply(my_df, 2, var)
+
+plot(apply(my_df, 2, var), type = "o", pch = 21, bg = "orange")
+
+```
+
+Naturally, as the range of values gets larger the variance goes up. While the range grows by 100s, the variance does not grow linearly. Let's look at a longer range of numbers and see how variance and the overall spread of the data interact.
+
+```{r ludicrous variance, echo = TRUE, fig.align = "center", fig.width = 5, fig.height = 5}
+
+my_df = sapply(1:100, function(x){ #Using function to create progressively larger runs of numbers that are equally spaced.
+    seq(x, x*100, x)
+})
+
+apply(my_df, 2, var)
+
+plot(apply(my_df, 2, var),
+     type = "o",
+     pch = 21, 
+     bg = "orange")
+
+lines(apply(my_df, 2, mad)*1000) #Here we're adding the MAD values for the same dataset, multiplied by 1000 to make them visible.
+
+
+```
+
+Here, we see that the relationship between variance and the overall dispersion becomes linear after a total dispersion of about 60,000, which gives us a variance of about 3 million. So, we see here that populations which are structurally identical but which vary in their total quantity are going to have different variances. Specifically, the larger the total counts, the more variance we expect to find. We can also see that the median average deviation overestimates variance up to about 40,000 then continually under-estimates it afterwards. 
+We will explore more about variance and population structure (i.e. composite frequency distribuion of variables in population) once we have mastered some more univariate statistics.
+
+### 3. Using Systematic Variation to Test Parameters
+
+We can learn a bit more by creating longer lists of repeating numbers, which will show us some of the impacts of sample size. Below, we make a short list of numbers with a mean and median of 9, then we repeat that list of numbers 100 times, taking the variance and median absolute deviation. The code below gives us three plots: one showing variance/MAD across the 100 repetitions of the number string; one showing a histogram of this data, and another showing frequency distributions as displayed using a combination of "plot()" and "table()" methods.
+
+```{r var and mad from range, echo = TRUE, fig.align = "center", fig.width = 15, fig.height = 5}
+
+test_range = c(5:13)
+
+plot_var = sapply(1:100, function(x){
+  var(rep(test_range, x))
+})
+
+plot_mad = sapply(1:100, function(x){
+  mad(rep(test_range, x))
+})
+
+par(mfrow = c(1, 3))
+
+plot(plot_var, ylim = c(0,10), pch = 21, bg = "orange")
+
+lines(plot_mad)
+
+hist(rep(test_range, 100))
+
+plot(table(rep(test_range,100)))
+
+par(mfrow = c(1, 1))
+
+```
+
+Regarding variance, we see a minor impact of the total sample size on our measurement of variance, but it quickly approaches an asymptote after being doubled three or four times. The distribution of this data is even and we see that increasing the number of observations (so long as they're the same numbers) does not impact our estimation of the mean or median. Will this hold for a set of numbers where the frequency distribution isn't even?
+
+```{r var and mad with limited normal data, echo = TRUE, fig.align = "center", fig.width = 10, fig.height = 5}
+
+norm_range = #Using <shift+enter>, we can already make a visualization of the counts...
+    c(5, 5,
+      6, 6, 6,
+      7, 7, 7, 7,
+      8, 8, 8, 8, 8,
+      9, 9, 9, 9, 9, 9,
+      10, 10, 10, 10, 10,
+      11, 11, 11, 11,
+      12, 12, 12,
+      13, 13)
+
+plot_var = sapply(1:100, function(x){
+  var(rep(norm_range, x))
+})
+
+plot_mad = sapply(1:100, function(x){
+  mad(rep(norm_range, x))
+})
+
+par(mfrow = c(1, 2))
+
+plot(plot_var, ylim = c(floor(min(plot_mad)) - 0.5, ceiling(max(plot_var)) +0.5), pch = 21, bg = "orange")
+
+lines(plot_mad)
+
+plot(table(rep(norm_range,100)))
+
+par(mfrow = c(1, 1))
+
+
+```
+
+Let's try this with a v-shaped distribution.
+
+```{r v-shaped distribution, echo = TRUE, fig.align = "center", fig.width = 10, fig.height = 5}
+
+v_range = c(
+      5, 5, 5, 5, 5, 5,
+      6, 6, 6, 6, 6, 
+      7, 7, 7, 7, 
+      8, 8, 8,
+      9, 9, 
+      10, 10, 10, 
+      11, 11, 11, 11,
+      12, 12, 12, 12, 12,
+      13, 13, 13, 13, 13, 13)
+
+plot_var = sapply(1:100, function(x){
+  var(rep(v_range, x))
+})
+
+plot_mad = sapply(1:100, function(x){
+  mad(rep(v_range, x))
+})
+
+par(mfrow = c(1, 2))
+
+plot(plot_var, ylim = c(floor(min(plot_mad)) - 0.5, ceiling(max(plot_var)) +0.5), pch = 21, bg = "orange")
+
+lines(plot_mad)
+
+plot(table(rep(v_range,100)))
+
+par(mfrow = c(1, 1))
+
+```
+
+The replication structure we're using here will serve us in the future. Let's codify the repetitions and plotting into a function to save us all this copy-pasting.
+
+```{r custom plot for basic stats, echo = TRUE}
+
+stat_lines = function(x,#Creating a function called "stat_lines" it expects some vector of data "x" and the following arguments
+                      times = length(x), #Setting this to "length(x)" by default, so calling this won't always be necessary. But we can add our own numbers!
+                      title = NA){ #Setting up a title object, defaulting to NA
+  
+  plot_u = sapply(1:times, function(y){ #Here's that fast custom function that creates means for the repeated set of numbers.
+    mean(rep(x, y))
+  })
+  
+  plot_med = sapply(1:times, function(y){ #Same, but for the median.
+    median(rep(x, y))
+  })
+  
+  plot_var = sapply(1:times, function(y){ #Same, but for variance.
+    var(rep(x, y))
+  })
+  
+  plot_mad = sapply(1:times, function(y){ #Same, but for median absolute deviation
+    mad(rep(x, y))
+  })
+  
+  stat_labels = c("mean", "median", "variance", "median abs. dev.")
+  
+  plot_stats = data.frame(plot_u, plot_med, plot_var, plot_mad)
+  
+  plot(0, 0, xlim = c(0, times), ylim = c(0, max(plot_stats)+1), pch = NA, xlab = "N repeats", ylab = "value", main =paste0(title," Repeated Statistics"))
+  
+  for(i in 1:ncol(plot_stats)){
+    points(plot_stats[, i], type = "o", pch = 21, lty = i, bg = i, cex = 0.7)
+    text(times*0.05+(i*(0.2*times)), min(plot_stats[, i])+(0.04*max(plot_stats)), labels = stat_labels[i])
+  }
+  
+}
+
+stat_lines(v_range, title = "V-Shaped Range")
+
+
+```
+
+This makes plotting this much easier, allowing us to make some quick comparisons between our two small datasets, which we are making much larger using the "rep()" function.
+
+```{r plots repeated ranges, echo = TRUE, fig.height = 8, fig.width = 8, fig.align = "center"}
+
+par(mfrow = c(1,2))
+
+stat_lines(v_range, title = "V-Shaped Range", times = 100)
+
+stat_lines(norm_range, title = "Normal Range", times = 100)
+
+par(mfrow = c(1,1))
+
+```
+
+We can apply this same approach to some of the fake core data.
+
+```{r fake core repeat stats, echo = TRUE, fig.height = 8, fig.width = 8, fig.align = "center"}
+
+par(mfrow = c(2,2))
+
+stat_lines(fake_core$Cyperaceae.undiff., title = "Cyperaceae")
+stat_lines(fake_core$Typha, title = "Typha")
+stat_lines(fake_core$Alchornea, title = "Alchornea")
+stat_lines(fake_core$Guibourtia.demeusei, title = "Guibourtia")
+
+par(mfrow = c(1,1))
+
+```
+
+What all of this demonstrates is that:
+
+1. Variables with different frequency distributions may have the same mean and/or median value.
+2. Variance grows at an exponential rate as the total distribution of data increases.
+
+### 4. At Last, Standard Deviations
+
+Thus, to standardize our estimate of deviation, we take the square root of variance. 
+
+```{r standard deviations again, echo = TRUE}
+
+sd(fake_core$Cyperaceae.undiff.)
+
+sd_cyp = sqrt(var(fake_core$Cyperaceae.undiff.))
+
+sd_cyp
+
+```
+
+Let's see how it performs when we systematically manipulate the data again.
+
+```{r sd and growing numeric range, echo = TRUE}
+
+par(mfrow = c(1, 2))
+
+my_df = sapply(1:10, function(x){ #Using function to create progressively larger runs of numbers that are equally spaced.
+    seq(x, x*100, x)
+})
+
+#apply(my_df, 2, sd)
+
+plot(apply(my_df, 2, sd), type = "o", pch = 21, bg = "orange")
+lines(apply(my_df, 2, mad))
+
+my_df = sapply(1:1000, function(x){
+  seq(x, x*100, x)
+})
+
+plot(apply(my_df, 2, sd), type = "o", pch = 21, bg = "orange")
+lines(apply(my_df, 2, mad))
+
+par(mfrow = c(1, 1))
+
+
+```
+
+Let's add standard deviations to our basic plots and remove the variance.
+
+```{r modifying stat plotting function, echo = TRUE}
+
+stat_lines = function(x,#Creating a function called "stat_lines" it expects some vector of data "x" and the following arguments
+                      times = length(x), #Setting this to "length(x)" by default, so calling this won't always be necessary. But we can add our own numbers!
+                      title = NA){ #Setting up a title object, defaulting to NA
+  
+  plot_u = sapply(1:times, function(y){ #Here's that fast custom function that creates means for the repeated set of numbers.
+    mean(rep(x, y))
+  })
+  
+  plot_med = sapply(1:times, function(y){ #Same, but for the median.
+    median(rep(x, y))
+  })
+  
+  #plot_var = sapply(1:times, function(y){ #Same, but for variance. #We can keep our code and just hash this out.
+  #  var(rep(x, y))
+  #})
+  
+  plot_mad = sapply(1:times, function(y){ #Same, but for median absolute deviation
+    mad(rep(x, y))
+  })
+  
+  plot_sd = sapply(1:times, function(y){
+    sd(rep(x, y))
+  })
+  
+  stat_labels = c("mean", "median", "median abs. dev.", "SD") #Because we automate everything below, all we have to do is modify the names.
+  
+  plot_stats = data.frame(plot_u, plot_med, plot_mad, plot_sd) #We're using the plot_stats dataframe below, so we modify the entry here.
+  
+  plot(0, 0, xlim = c(0, times), ylim = c(0, max(plot_stats)+1), pch = NA, xlab = "N repeats", ylab = "value", main =paste0(title," Repeated Statistics"))
+  
+  for(i in 1:ncol(plot_stats)){
+    points(plot_stats[, i], type = "o", pch = 21, lty = i, bg = i, cex = 0.7)
+    text((times/ncol(plot_stats)*i), min(plot_stats[, i])+(0.04*max(plot_stats)), labels = stat_labels[i]) #Changing text plotting to fit new variable.
+  }
+  
+}
+
+```
+
+Let's plot our selected taxa again.
+
+```{r modified stat plot for fake core, echo = TRUE, fig.height = 8, fig.width = 8, fig.align = "center"}
+
+par(mfrow = c(2,2))
+
+stat_lines(fake_core$Cyperaceae.undiff., title = "Cyperaceae")
+stat_lines(fake_core$Typha, title = "Typha")
+stat_lines(fake_core$Alchornea, title = "Alchornea")
+stat_lines(fake_core$Guibourtia.demeusei, title = "Guibourtia")
+
+par(mfrow = c(1,1))
+
+```
+
+At last, we see that the SD is slightly more conservative than median absolute deviations. Because we've taken variance, which is sensitive to total dispersion, and standardized it by differences from the mean we end up with a value that is easier to interpret. This is why most of us understand some basic principles of standard deviations without knowing why this value has these characteristics. Thus, standard deviations are the typical distance from the mean that characterizes a set of values.
+
+### 5. Back to Frequency Distributions, Sampling Basics
+
+Armed with our newfound knowledge of variance, we can make good use of some powerful R functions:
+
+* rnorm() - generates a set of numbers based on a normal distribution.
+* sample() - randomly samples from a given input.
+
+We can also verify this with some population thinking using the function "rnorm()" which lets us create a normally-distributed sample using arguments for the number of random numbers, mean, and standard deviation. 
+
+```{r rnorm basics, echo = TRUE}
+
+norm_vector = rnorm(n = 100, mean = 50, sd = 10)
+
+hist(norm_vector)
+
+```
+
+Let's see how this distribution changes when we systematically increase the sample size.
+
+```{r histograms of increasing sample size, echo = TRUE, fig.align = "center", fig.height = 16, fig.width = 8}
+
+par(mfrow = c(3,2)) #We're making six plots
+
+sapply(1:6, function(x){ #Using a custom function six times
+  hist(rnorm(n = 10^x, #Call histogram for a normally distributed set of random numbers, increasing by orders of magnitude (10^i)
+             mean = 50, #Set the mean of the random values
+             sd = 10), #Set the standard deviation
+       breaks = 50, #Breaks for histogram
+       main = paste0("Histogram for n = ", 10^x)) #Title for plots
+})
+
+par(mfrow = c(1,1))
+
+```
+
+R lets us create data using rbeta(), which generates some skewed data. There's two arguments for shape ("shape1" and "shape2"). As the two numbers get closer together, the distribution becomes more normal.
+
+```{r skewing data, echo = TRUE}
+
+par(mfrow = c(3,2))
+
+sapply(exp(seq(0.2, 1.2, 0.2)), function(x){ #Using a custom function six times
+  hist(rbeta(10000, #Call histogram for a normally distributed set of random numbers, increasing by orders of magnitude (10^i)
+             x, #Setting shape values
+             10), #Setting shape values
+       breaks = 50, #Breaks for histogram
+       main = paste0("Histogram for Skewed Data")) #Title for plots
+})
+
+par(mfrow = c(1,1))
+
+```
+
+We modify the shape arguments to create skews in the other direction.
+
+```{r skewing data part 2, echo = TRUE}
+
+par(mfrow = c(3,2))
+
+sapply(exp(seq(0.2, 1.2, 0.2)), function(x){ #Using a custom function six times
+  hist(rbeta(10000, #Call histogram for random numbers drawn from beta distribution of 10000 numbers
+             10, #Setting shape values
+             x), #Setting shape values
+       breaks = 50, #Breaks for histogram
+       main = paste0("Histogram for Skewed Data")) #Title for plots
+})
+
+par(mfrow = c(1,1))
+
+```
+
+If we shrink our stable shape value to less than one, we approach exponential distributions and we don't approach normalcy as the values become even.
+
+```{r skewing data exponential, echo = TRUE}
+
+par(mfrow = c(3,2))
+
+sapply(1:6, function(x){ #Using a custom function six times
+  hist(rbeta(10000, #Call histogram for random numbers drawn from beta distribution of 10000 numbers
+             0.2, #Setting shape values
+             x), #Setting shape values
+       breaks = 50, #Breaks for histogram
+       main = paste0("Histogram for Skewed Data")) #Title for plots
+})
+
+par(mfrow = c(1,1))
+
+```
+
+Being able to manipulate distributions in this way can help us add specific parameters for some of our expectations for how production and preservation may bias our estimates of past community composition and rates of past ecological change.
+
+```{r using sampling to evaluate changing variance, echo = TRUE}
+
+my_df = sapply(1:1000, function(x){
+  rnorm(100, mean = x*10, sd = 10)
+})
+
+apply(my_df, 2, var)
+
+plot(apply(my_df, 2, var), type = "o", pch = 21, bg = "orange")
+
+```
