@@ -484,7 +484,50 @@ par(mfrow = c(1,1))
 
 ```
 
-Being able to manipulate distributions in this way can help us add specific parameters for some of our expectations for how production and preservation may bias our estimates of past community composition and rates of past ecological change.
+Being able to manipulate distributions in this way can help us add specific parameters for some of our expectations for how production and preservation may bias our estimates of past community composition and rates of past ecological change. Let's look at our basic statistics again, using skewed distributions. We will build four vectors with 1000 random values drawn from four different distributions.
+
+```{r stats on various distributions, echo = TRUE}
+
+my_log <- rlogis(1000)
+my_exp <- rexp(1000)
+my_nrm <- rnorm(1000)
+my_skw <- rbeta(1000, 10, 2)
+
+my_dist <- data.frame(log = my_log, my_exp, my_nrm, my_skw)
+
+my_hist <- function(x, data){
+  hist(data[,x], breaks = 50, main = colnames(data)[x])
+}
+
+par(mfrow = c(3,2))
+
+invisible(lapply(1:ncol(my_dist), my_hist, data = my_dist))
+
+par(mfrow = c(1,1))
+
+```
+
+We encounter a problem with the above - the ranges of the numbers are rather different, and the "rlogis()" function is giving us an exponential relationship between the mean and the min/max, but it is still more or less normally distributed. 
+
+```{r boxplots of distributions, echo = TRUE}
+
+vioplot::vioplot(my_dist, horizontal = TRUE, las = 1)
+
+```
+
+We need to scale these results from 0 - 1 and we can treat them all as probabilities. We divide each by their max value and, in the case of the log values, we do this with the absolute value (giving us a one-tailed log distribution).
+
+```{r making probability distributions, echo = TRUE}
+
+prob_dist <- data.frame(log = abs(my_log)/max(abs(my_log)), 
+                        exponential = my_exp/max(my_exp),
+                        normal =  (my_nrm + abs(min(my_nrm)))/(max(my_nrm + abs(min(my_nrm)))), 
+                        right_skew = my_skw)
+
+```
+
+
+
 
 ```{r using sampling to evaluate changing variance, echo = TRUE}
 
