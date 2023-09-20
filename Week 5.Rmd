@@ -1,0 +1,400 @@
+---
+title: "Week 5"
+author: "C.A. Kiahtipes"
+date: "9/17/2023"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Week 5: Paleoenvironmental Reconstructions and Proxies III - Probability, Sampling, and Comparisons
+
+### 1. Introduction
+
+Notes on goals for this week and review of connections to the last couple weeks.
+
+Might could review figures with various distributions.
+
+### 2. Probabilities
+
+#### 2.1. Probabilities and the Normal Distribution
+
+Area under the curve contains 100% of the observations. Using density() and rnorm() we can whip up a normal distribution pretty quick.
+
+Shape of the normal distribution responds to standard deviations. Remember, it's computed from variance which is sensitive to total dispersion.
+
+```{r normal distribution, echo = TRUE, fig.align = "center", fig.height = 6, fig.width = 6}
+
+par(mfrow = c(2, 2))
+
+my_sd = c(5, 10, 20, 40)
+
+for(i in 1:length(my_sd)){
+  plot(density(rnorm(10000, 100, my_sd[i])), xlim = c(-50, 250))
+}
+
+par(mfrow = c(1, 1))
+
+```
+
+Standard deviations are a powerful metric because of their relationship to the normal distribution. The area under a curve which falls between one standard deviation and the mean is always 34%. Given that normal distributions are symmetrical, it is easy to calculate the total area within +/- 1 standard deviation as 68% of the area under the curve. Because we express it as a percent, there's an inherent probability statement: 68 out of 100 possible outcomes will fall in this range. A standard deviation of 1.96 on either side of the mean yields an area covering 95% of the observations.
+
+#### 2.2 Using R to Estimate Probabilities from Normal Distributions
+
+R's functions for calculating probabilities are rich and because of the relationships between variance, standard deviations, and the shape of a given distribution, we can use this to infer how likely a given observation is, given the population mean and standard deviation.
+
+```{r finding areas under normal curve, echo = TRUE}
+
+plot(density(rnorm(10000, mean = 100, sd = 20)))
+
+lines(c(rep(75,2)), c(0,0.02))
+
+arrows(100, 0.010, 75, 0.010, col = "blue")
+
+#express as standard deviation units, or z-score. We can check this against a table to get proportion above/below this value.
+
+(75 - 100)/20
+
+pnorm(75, 100, 20) #We use pnrom() to give us the area under the curve beyond this value.
+
+```
+
+##### 2.2.1 Z-scores
+
+There are lots of ways to transform data and z-scores are likely the most useful of these. Because we're standardizing (taking the square root) variance, the standard deviation will always standardize values to the total dispersion of the data. This is one of the most reliable ways to compare datasets with different units and/or to plot a sequence of observations across time.
+
+We can briefly revisit out fake core data here and do some basic data transformations, observing how the overall variance in the samples shifts as we make these corrections.
+
+This is a good chance to do some practice work. Let's read the data and use what we know to calculate percents.
+
+
+```{r reading data and making percents, echo = TRUE}
+
+fake_core = read.csv("data/Fake_core.csv", header = TRUE, row.names = "depth")
+
+fake_sums = apply(fake_core, 1, sum)
+
+fake_pct = (fake_core/fake_sums)*100
+
+```
+
+Let's make some boxplots for our raw and our percent transformed data.
+
+```{r boxplots for raw and percent, echo = TRUE, fig.align = "center", fig.height = 8, fig.width = 8}
+
+par(mfrow = c(2,1), mar = c(5, 8, 4, 2) + 0.1)
+
+boxplot(fake_core, horizontal = TRUE, las = 1, cex.axis = 0.8)
+
+boxplot(fake_pct, horizontal = TRUE, las = 1, cex.axis = 0.8)
+
+par(mfrow = c(1,1), mar = c(5, 4, 4, 2) + 0.1)
+
+```
+
+We can see that calculating percents does reduce the total dispersion of some of the more abundant taxa (*Macaranga*, *Alchornea*). We see some outliers disappear, but others appear in their place.
+
+Percentages are useful, but they are impacted by the total number of individuals in each sample. Thus, we may benefit from using a metric that is standardized by the variance in the observations, such as a standard deviation.
+
+In the examples above, we could determine the percent of the area of the curve which falls below a certain X value because we can translate this to a z-score, from which we can use the relationship between the curve and standard deviations to figure out the area.
+
+Let's make z-scores for our fake data. We do this by taking the difference between each observation of a variable and the mean divided by the standard deviation of the variable...
+
+z = x[i] - µ/sd
+
+```{r z scores of fake data, echo = TRUE}
+
+z_cyp = (fake_core$Cyperaceae.undiff. - mean(fake_core$Cyperaceae.undiff.))/sd(fake_core$Cyperaceae.undiff.)
+
+plot(z_cyp, pch = 21, bg = "purple")
+
+```
+
+Notice that the values are all constrained within (basically) -2 and 2. Knowing that 95.4% of all observations fall within two standard deviations supports this basic observation. Let's apply it to all of the variables and see what it does to their distributions.
+
+Zscores are so useful, you should make a function to calculate them.
+
+```{r z-scores of all variables, echo = TRUE, fig.align = "center", fig.height = 8, fig.width = 8}
+
+zscore <- function(x){
+  mew = mean(x)
+  std = sd(x)
+  z = (x-mew)/std
+}
+
+fake_zcore <- apply(fake_core, 2, zscore)
+fake_zcore <- as.data.frame(fake_zcore)
+
+par(mfrow = c(3,1), mar = c(5, 8, 4, 2) + 0.1)
+
+boxplot(fake_core, horizontal = TRUE, las = 1, cex.axis = 0.8)
+
+boxplot(fake_pct, horizontal = TRUE, las = 1, cex.axis = 0.8)
+
+boxplot(fake_zcore, horizontal = TRUE, las = 1, cex.axis = 0.8)
+
+par(mfrow = c(1,1), mar = c(5, 4, 4, 2) + 0.1)
+
+```
+
+When we plot the z-scores, we see that we've controlled for the variance of individual variables. Now, all of our variables have an equal distribution. If we had observations at different scales, z-score transformations would let us set them all to the same scale. This is one way to compare fluctuations in multiple metrics simultaneously.
+
+```{r comparing results at scales, echo = TRUE, fig.align = "center", fig.height = 8, fig.width = 12}
+
+par(mfrow = c(3,1))
+
+plot(fake_core$Macaranga, type = "o", pch = 21, bg = "purple")
+points(fake_core$Guibourtia.demeusei, type = "o", pch = 21, bg = "green")
+
+plot(fake_pct$Macaranga, type = "o", pch = 21, bg = "purple")
+points(fake_pct$Guibourtia.demeusei, type = "o", pch = 21, bg = "green")
+
+plot(fake_zcore$Macaranga, type = "o", pch = 21, bg = "purple")
+points(fake_zcore$Guibourtia.demeusei, type = "o", pch = 21, bg = "green")
+
+par(mfrow = c(1,1))
+
+```
+
+Here, we have a means of comparing both common and less common taxa distributed across a sedimentary column. Not only does it scale the variables together correctly, but it also unmasks the variation in observations with a lower number of observations.
+
+Now we can return to the normal distribution.
+
+pnorm() lets us get the area under the curve above a given value.
+
+```{r plotting areas under distributions, echo = TRUE}
+
+pop_dist = density(rnorm(10000, 100, 20))
+
+plot(pop_dist)
+
+pnorm(150, 100, 20)
+
+norm_area = function(dist, value, col = "gray"){
+  yt = dist$y[dist$x < value]
+  yb = rep(0, length(yt))
+  
+  x = dist$x[dist$x < value]
+  
+  
+  polygon(c(x, rev(x)), c(yt,yb), col = col)
+}
+
+norm_area(pop_dist, 150, col = "red")
+
+arrows(100, 0.010, 150, 0.010)
+lines(c(150,150), c(0,0.020), lty = 3)
+text(151, 0.015, "z = 2.5, p = 0.0062")
+
+```
+
+This is the fundamental method for calculating p-values, which are just the proportion of the area under a normal distribution (with a given mean and standard deviation) that is above or below a certain value. This is not the probability of a given outcome, but the proportion of outcomes which fall above/below the value. This is all well and good, but we do not always (or perhaps ever) know the population mean and standard deviation. Thus, we rely on some parameter estimation.
+
+#### 2.4 Probabilities in Non-Normal Distributions
+
+We noticed before that R's functions for various distributions have a common structure.
+
+* rnorm() - generates random samples
+* pnorm() - gives probability of a value or set of quantiles
+* qnorm() - gives quantile function
+* dnorm() - gives the density distribution function
+
+This means we can use some of the same techniques to look at areas under non-normal curves. So long as there's some function that describes a population distribution, we can use that function to calculate the area under the curve. It's considerably harder for non-normal distributions, but now that the computation is done by our personal computers, we can benefit from this knowledge without needing to be able to do the calculations ourselves. 
+
+```{r non-normal distributions, echo = TRUE}
+
+x_vals = seq(0, 10, 0.01)
+y_dist = dexp(x_vals, 2)
+
+plot(x_vals, y_dist, "l")
+
+x_rnge = x_vals[x_vals < 2]
+y_rnge = y_dist[x_vals < 2]
+
+polygon(c(x_rnge, rev(x_rnge)), c(y_rnge,rep(0, length(y_rnge))), col = "red")
+text(2, 1.5, paste0(pexp(2, 2),"% of area"))
+
+
+```
+
+Approximating the F-distribution.
+
+### 3. Applying Probabilities to Sampling and Parameter Estimation
+
+#### 3.1 Parameter Estimation with Normal Distribution.
+
+```{r parameter estimation with normal dist, echo = TRUE}
+
+my_log <- rlogis(1000)
+my_exp <- rexp(1000)
+my_nrm <- rnorm(1000)
+my_skw <- rbeta(1000, 10, 2)
+
+my_dist <- data.frame(log = my_log, my_exp, my_nrm, my_skw)
+
+
+prob_dist <- data.frame(log = abs(my_log)/max(abs(my_log)), #We take absolute value and divide by max
+                        exponential = my_exp/max(my_exp), #We divide by the max value
+                        normal =  (my_nrm + abs(min(my_nrm)))/(max(my_nrm + abs(min(my_nrm)))),  #Add the minimum (to get to 0), then divide by the new maximum.
+                        right_skew = my_skw) #Beta-generated distributions are prob. distributions!
+
+my_log <- rlogis(1000)
+my_exp <- rexp(1000)
+my_nrm <- rnorm(1000)
+my_skw <- rbeta(1000, 10, 2)
+
+my_dist <- data.frame(log = my_log, my_exp, my_nrm, my_skw)
+
+
+sample_size = c(5, 10, 20, 40, 80)
+times = 10000
+
+parent_pop = prob_dist$normal
+parent_dns = density(parent_pop)
+
+plot(parent_dns$x, parent_dns$y/max(parent_dns$y), type = "l", ylim = c(0,1.3))
+#legend(575, 0.8, c("parent distribution", sample_size), lty = c(1, 1:length(sample_size)), col = c("black",rep("red", length())))
+lines(c(rep(mean(parent_pop),2)),c(0,1),col = "red")
+lines(c(rep(median(parent_pop),2)),c(0,1),col = "blue")
+
+for(i in 1:length(sample_size)){
+  
+  dist_mean = vector("numeric", length = times)
+  dist_medi = vector("numeric", length = times)
+  
+  for(j in 1:times){
+    dist_mean[j] = mean(sample(parent_pop, sample_size[i], replace = TRUE))
+    dist_medi[j] = median(sample(parent_pop, sample_size[i], replace = TRUE))
+  }
+  
+  dens_mean = density(dist_mean)
+  dens_medi = density(dist_medi)
+  lines(dens_medi$x, dens_medi$y/max(dens_medi$y), col = "blue", lty =i)
+  lines(dens_mean$x, dens_mean$y/max(dens_mean$y), col = "red", lty = i)
+  
+}
+
+```
+
+
+#### 3.2 Parameter Estimation with non-Normal Distributions
+
+```{r parameter estimation with non-normal dist, echo = TRUE, fig.align = "center", fig.height = 10, fig.width = 10}
+
+par(mfrow = c(2,2))
+
+sample_size = c(5, 10, 20, 40, 80)
+times = 10000
+
+parent_pop = rnorm(10000, mean = 450, sd = 50)
+parent_dns = density(parent_pop)
+
+plot(parent_dns$x, parent_dns$y/max(parent_dns$y), type = "l", ylim = c(0,1.3))
+#legend(575, 0.8, c("parent distribution", sample_size), lty = c(1, 1:length(sample_size)), col = c("black",rep("red", length())))
+lines(c(rep(mean(parent_pop),2)),c(0,1),col = "red")
+lines(c(rep(median(parent_pop),2)),c(0,1),col = "blue")
+
+for(i in 1:length(sample_size)){
+  
+  dist_mean = vector("numeric", length = times)
+  dist_medi = vector("numeric", length = times)
+  
+  for(j in 1:times){
+    dist_mean[j] = mean(sample(parent_pop, sample_size[i], replace = TRUE))
+    dist_medi[j] = median(sample(parent_pop, sample_size[i], replace = TRUE))
+  }
+  
+  dens_mean = density(dist_mean)
+  dens_medi = density(dist_medi)
+  lines(dens_medi$x, dens_medi$y/max(dens_medi$y), col = "blue", lty =i)
+  lines(dens_mean$x, dens_mean$y/max(dens_mean$y), col = "red", lty = i)
+  
+}
+
+#The larger the sample we take, the narrower the standard error. 
+
+#This can be done for a skewed distribution also
+
+sample_size = c(5, 10, 20, 40, 80)
+times = 10000
+
+parent_pop = prob_dist$right_skew
+parent_dns = density(parent_pop)
+
+plot(parent_dns$x, parent_dns$y/max(parent_dns$y), type = "l", ylim = c(0,1.3))
+#legend(575, 0.8, c("parent distribution", sample_size), lty = c(1, 1:length(sample_size)), col = c("black",rep("red", length())))
+lines(c(rep(mean(parent_pop),2)),c(0,1),col = "red")
+lines(c(rep(median(parent_pop),2)),c(0,1),col = "blue")
+
+for(i in 1:length(sample_size)){
+  
+  dist_mean = vector("numeric", length = times)
+  dist_medi = vector("numeric", length = times)
+  
+  for(j in 1:times){
+    dist_mean[j] = mean(sample(parent_pop, sample_size[i], replace = TRUE))
+    dist_medi[j] = median(sample(parent_pop, sample_size[i], replace = TRUE))
+  }
+  
+  dens_mean = density(dist_mean)
+  dens_medi = density(dist_medi)
+  lines(dens_medi$x, dens_medi$y/max(dens_medi$y), col = "blue", lty =i)
+  lines(dens_mean$x, dens_mean$y/max(dens_mean$y), col = "red", lty = i)
+  
+}
+
+#Also for exponential
+
+sample_size = c(5, 10, 20, 40, 80)
+times = 10000
+
+parent_pop = prob_dist$exponential
+parent_dns = density(parent_pop)
+
+plot(parent_dns$x, parent_dns$y/max(parent_dns$y), type = "l", ylim = c(0,1.3))
+#legend(575, 0.8, c("parent distribution", sample_size), lty = c(1, 1:length(sample_size)), col = c("black",rep("red", length())))
+lines(c(rep(mean(parent_pop),2)),c(0,1),col = "red")
+lines(c(rep(median(parent_pop),2)),c(0,1),col = "blue")
+
+for(i in 1:length(sample_size)){
+  
+  dist_mean = vector("numeric", length = times)
+  dist_medi = vector("numeric", length = times)
+  
+  for(j in 1:times){
+    dist_mean[j] = mean(sample(parent_pop, sample_size[i], replace = TRUE))
+    dist_medi[j] = median(sample(parent_pop, sample_size[i], replace = TRUE))
+  }
+  
+  dens_mean = density(dist_mean)
+  dens_medi = density(dist_medi)
+  lines(dens_medi$x, dens_medi$y/max(dens_medi$y), col = "blue", lty =i)
+  lines(dens_mean$x, dens_mean$y/max(dens_mean$y), col = "red", lty = i)
+  
+}
+
+plot(0,0, pch = NA, ann = FALSE, axes = FALSE, xlim = c(0,10), ylim = c(0,10))
+legend(1,10,
+       c("parent distribution", rep(sample_size,2)), 
+       lty = c(1, rep(1:length(sample_size),2)), 
+       col = c("black", rep("red", length(sample_size)), rep("blue", length(sample_size))),
+       cex = 0.8)
+
+par(mfrow = c(1,1))
+
+```
+
+#### 3.3 Confidence Intervals
+
+Now that we know how to calculate the standard error of our population estimate, we can use this knowledge to generate confidence intervals for our statistics. We benfit immensely from the general principle that as we collect larger samples, the standard error of the mean appraoches normality. This means that we can use the standard deviation to area math from a normal distribution, even in the parent population is not normally distributed.
+
+#### 3.4 Student's t-test
+
+
+
+
+
+
+

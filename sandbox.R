@@ -422,5 +422,13 @@ for(i in 1:length(substrates)){
 
 plot(fake_map$x, fake_map$y, pch = 20+subst_vals, bg = fake_map$elevation)
 
+#Pulled from Week 4
 
+my_df = sapply(1:1000, function(x){
+  rnorm(100, mean = x*10, sd = 10)
+})
+
+apply(my_df, 2, var)
+
+plot(apply(my_df, 2, var), type = "o", pch = 21, bg = "orange")
 

@@ -418,13 +418,13 @@ Let's see how this distribution changes when we systematically increase the samp
 
 par(mfrow = c(3,2)) #We're making six plots
 
-sapply(1:6, function(x){ #Using a custom function six times
+invisible(sapply(1:6, function(x){ #Using a custom function six times
   hist(rnorm(n = 10^x, #Call histogram for a normally distributed set of random numbers, increasing by orders of magnitude (10^i)
              mean = 50, #Set the mean of the random values
              sd = 10), #Set the standard deviation
        breaks = 50, #Breaks for histogram
        main = paste0("Histogram for n = ", 10^x)) #Title for plots
-})
+}))
 
 par(mfrow = c(1,1))
 
@@ -519,24 +519,103 @@ We need to scale these results from 0 - 1 and we can treat them all as probabili
 
 ```{r making probability distributions, echo = TRUE}
 
-prob_dist <- data.frame(log = abs(my_log)/max(abs(my_log)), 
-                        exponential = my_exp/max(my_exp),
-                        normal =  (my_nrm + abs(min(my_nrm)))/(max(my_nrm + abs(min(my_nrm)))), 
-                        right_skew = my_skw)
+prob_dist <- data.frame(log = abs(my_log)/max(abs(my_log)), #We take absolute value and divide by max
+                        exponential = my_exp/max(my_exp), #We divide by the max value
+                        normal =  (my_nrm + abs(min(my_nrm)))/(max(my_nrm + abs(min(my_nrm)))),  #Add the minimum (to get to 0), then divide by the new maximum.
+                        right_skew = my_skw) #Beta-generated distributions are prob. distributions!
 
 ```
 
+Now we can have a look at all of these more or less side by side, let's use vioplot to see more details about the shape of our new probability distributions.
 
+```{r boxplots of prob distributions, echo = TRUE}
 
+par(mar = c(5, 6, 4, 2) + 0.1)
 
-```{r using sampling to evaluate changing variance, echo = TRUE}
+vioplot::vioplot(prob_dist,
+                 horizontal = TRUE,
+                 col = "gold",
+                 las = 1,
+                 main = "Violin Plots of Prob Distributions")
 
-my_df = sapply(1:1000, function(x){
-  rnorm(100, mean = x*10, sd = 10)
-})
-
-apply(my_df, 2, var)
-
-plot(apply(my_df, 2, var), type = "o", pch = 21, bg = "orange")
+par(mar = c(5, 4, 4, 2) + 0.1)
 
 ```
+
+### 6. Using Probability Distributions to Control Sampling
+
+We can use these kinds of parameters to determine the probability that a sample is drawn from a group. Let's work with some basic sampling to understand what we're talking about here.
+
+The R function "sample()" lets us draw a number of samples from a given vector of data. Arguments for this function include "size = ", "replace = ", and "prob = ". 
+
+Let's try a simple example. 
+
+```{r basic sampling, echo = TRUE}
+
+my_pop = c("A", "B", "C", "D", "E", "F", "G", "H", "I", "J")
+
+my_spl = sample(my_pop, size = 5)
+
+```
+
+If you call "my_spl", you will get a different result than me, because these are randomized samples with no probability (thus, equal probability of each choice). This is a good time to see what happens when sampling with or without replacement.
+
+```{r sampling and replacement, echo = TRUE}
+
+my_spl = sample(my_pop, 
+                size = 10,
+                replace = FALSE)
+
+my_spl[order(my_spl)]
+
+```
+
+You'll see that we all do get the same answers at this point. Our sample is equal to the population.
+
+Let's run that sampling run again and set "size = 11". Let's turn it up to 11! It won't work in this markdown document, but it should give you an error. This is because when sampling with replacement, we cannot take more samples than the population.
+
+When sampling with replacement, we can make sample populations larger than the number of things that we're drawing from. This reasonably simulates identifying a fossil from a sedimentary population - there's only so many things that can be encountered, and we will count them based on given probabilities assigned to each group.
+
+```{r sampling without replacement, echo =TRUE}
+
+my_spl = sample(my_pop,
+                size = 100,
+                replace = TRUE)
+
+spl_cnt = table(my_spl)
+
+plot(table(my_spl))
+
+```
+
+Let's up the sample size and see if the frequency distributions evens out.
+
+```{r even with larger sample size, echo = TRUE}
+
+my_spl = sample(my_pop,
+                size = 1000,
+                replace = TRUE)
+
+spl_cnt = table(my_spl)
+
+plot(table(my_spl))
+
+```
+
+Now let's modify our probability.
+
+```{r modifying probability in samples, echo = TRUE}
+
+
+
+
+my_spl = sample(my_pop,
+                size = 1000,
+                replace = TRUE,
+                prob = c(seq(0.2,0.8,0.2),1,1,seq(0.8,0.2,-0.2)))
+
+plot(table(my_spl))
+
+
+```
+
