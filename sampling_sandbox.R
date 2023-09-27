@@ -273,13 +273,159 @@ zscore = function(x){
 }
 
 make_pct = function(x){
-  sum = sum(x, na.rm = TRUE)
-  pct = (x/sum)*100
+  samp_sum = apply(x, 1, sum)
+  pct = (x/samp_sum)*100
+  pct
 }
 
-fake_pct = apply(fake_core, 2, make_pct)
+fake_pct = make_pct(fake_core)
 fake_zcore = apply(fake_core, 2, zscore)
 
+par(mfrow = c(3, 1))
+
+boxplot(fake_core, horizontal = TRUE)
 boxplot(fake_pct, horizontal = TRUE)
 boxplot(fake_zcore, horizontal = TRUE)
-boxplot(fake_core, horizontal = TRUE)
+
+par(mfrow = c(1, 1))
+
+#Now, can we tell the difference between different sections of the core?
+
+#Read the fake core details with the associated stratigraphic inputs.
+
+fake_core <- read.csv("data/Fake_core_plus.csv",
+                      header = TRUE,
+                      row.names = "depth")
+
+plot(0,0, axes = FALSE, ann = FALSE, pch = NA, xlim = c(0,50), ylim = c(0,7))
+
+lines(table(fake_core$Cyperaceae.undiff.[fake_core$stratum == "F" | fake_core$stratum == "G"]),
+     xlim = c(0, 50))
+
+lines(table(fake_core$Cyperaceae.undiff.[fake_core$stratum == "A" | fake_core$stratum == "B"]), lty = 2)
+
+axis(1, at = 0:50)
+axis(2, at = 0:7)
+
+#Here, we pull the data apart by upper and lower levels, excluding stratum D. Going to try and see which it fits best with.
+
+upper_cyp = fake_core$Cyperaceae.undiff.[fake_core$stratum == "A" |
+                                           fake_core$stratum == "B" |
+                                           fake_core$stratum == "C"]
+
+
+lower_cyp = fake_core$Cyperaceae.undiff.[fake_core$stratum == "E" |
+                                           fake_core$stratum == "F" |
+                                           fake_core$stratum == "G"]
+
+upper_sap = fake_core$Sapotaceae.undiff.[fake_core$stratum == "A" |
+                                           fake_core$stratum == "B" |
+                                           fake_core$stratum == "C"]
+
+lower_sap = fake_core$Sapotaceae.undiff.[fake_core$stratum == "E" |
+                                           fake_core$stratum == "F" |
+                                           fake_core$stratum == "G"]
+
+#Three plots showing different ways to assess differences in distributions.
+
+par(mfrow = c(3, 2))
+
+plot(density(upper_cyp), xlim = c(0,50), ylim = c(0, 0.08), col = "blue")
+lines(density(lower_cyp), lty = 3, col = "darkgreen")
+lines(density(fake_core$Cyperaceae.undiff.[fake_core$stratum == "D"]), lty = 2, col = "red")
+
+plot(density(upper_sap), xlim = c(0,40), ylim = c(0, 0.08), col = "blue")
+lines(density(lower_sap), lty = 3, col = "darkgreen")
+lines(density(fake_core$Sapotaceae.undiff.[fake_core$stratum == "D"]), lty =2, col = "red")
+
+plot(0, 0, pch = NA, axes = FALSE, ann = FALSE, xlim = c(0, 50), ylim = c(0, 7))
+lines(table(lower_cyp), lty = 2, col = "darkgreen")
+lines(table(upper_cyp), lty = 3, col = "blue")
+lines(table(fake_core$Cyperaceae.undiff.[fake_core$stratum == "D"]), lty = 1)
+axis(1, at = 0:50)
+axis(2, at = 0:7)
+
+plot(0, 0, pch = NA, axes = FALSE, ann = FALSE, xlim = c(0, 40), ylim = c(0, 7))
+lines(table(lower_sap), lty = 2, col = "darkgreen")
+lines(table(upper_sap), lty = 3, col = "blue")
+lines(table(fake_core$Sapotaceae.undiff.[fake_core$stratum == "D"]), lty = 1)
+axis(1, at = 0:50)
+axis(2, at = 0:7)
+
+vioplot::vioplot(upper_cyp, lower_cyp, fake_core$Cyperaceae.undiff.[fake_core$stratum == "D"], 
+                 horizontal = TRUE,
+                 col = c("blue", "darkgreen", "red"))
+
+vioplot::vioplot(upper_sap, lower_sap, fake_core$Sapotaceae.undiff.[fake_core$stratum == "D"], 
+                 horizontal = TRUE,
+                 col = c("blue", "darkgreen", "red"))
+
+
+par(mfrow = c(1,1))
+
+#We could do the same with percents.
+
+#fake_core = make_pct(fake_core[,1:ncol(fake_core)-1])
+
+upper_cyp = fake_pct$Cyperaceae.undiff.[fake_core$stratum == "A" |
+                                           fake_core$stratum == "B" |
+                                           fake_core$stratum == "C"]
+
+
+lower_cyp = fake_pct$Cyperaceae.undiff.[fake_core$stratum == "E" |
+                                           fake_core$stratum == "F" |
+                                           fake_core$stratum == "G"]
+
+upper_sap = fake_pct$Sapotaceae.undiff.[fake_core$stratum == "A" |
+                                           fake_core$stratum == "B" |
+                                           fake_core$stratum == "C"]
+
+lower_sap = fake_pct$Sapotaceae.undiff.[fake_core$stratum == "E" |
+                                           fake_core$stratum == "F" |
+                                           fake_core$stratum == "G"]
+
+#Three plots showing different ways to assess differences in distributions.
+
+par(mfrow = c(3, 2))
+
+plot(density(upper_cyp), xlim = c(0,25), ylim = c(0, 0.20), col = "blue")
+lines(density(lower_cyp), lty = 3, col = "darkgreen")
+lines(density(fake_pct$Cyperaceae.undiff.[fake_core$stratum == "D"]), lty = 2, col = "red")
+
+plot(density(upper_sap), xlim = c(0,25), ylim = c(0, 0.20), col = "blue")
+lines(density(lower_sap), lty = 3, col = "darkgreen")
+lines(density(fake_pct$Sapotaceae.undiff.[fake_core$stratum == "D"]), lty =2, col = "red")
+
+plot(0, 0, pch = NA, axes = FALSE, ann = FALSE, xlim = c(0, 25), ylim = c(0, 1))
+lines(table(lower_cyp), lty = 2, col = "darkgreen")
+lines(table(upper_cyp), lty = 3, col = "blue")
+lines(table(fake_pct$Cyperaceae.undiff.[fake_core$stratum == "D"]), lty = 1)
+axis(1, at = 0:50)
+axis(2, at = 0:1)
+
+plot(0, 0, pch = NA, axes = FALSE, ann = FALSE, xlim = c(0, 20), ylim = c(0, 1))
+lines(table(lower_sap), lty = 2, col = "darkgreen")
+lines(table(upper_sap), lty = 3, col = "blue")
+lines(table(fake_pct$Sapotaceae.undiff.[fake_core$stratum == "D"]), lty = 1)
+axis(1, at = 0:50)
+axis(2, at = 0:1)
+
+vioplot::vioplot(upper_cyp, lower_cyp, fake_pct$Cyperaceae.undiff.[fake_core$stratum == "D"], 
+                 horizontal = TRUE,
+                 col = c("blue", "darkgreen", "red"))
+
+vioplot::vioplot(upper_sap, lower_sap, fake_pct$Sapotaceae.undiff.[fake_core$stratum == "D"], 
+                 horizontal = TRUE,
+                 col = c("blue", "darkgreen", "red"))
+
+
+par(mfrow = c(1,1))
+
+#Assessing differences with tests
+
+
+
+
+
+
+

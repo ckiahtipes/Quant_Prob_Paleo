@@ -1,0 +1,100 @@
+---
+title: "Week 6"
+author: "C.A. Kiahtipes, G. Herbert"
+date: "`r Sys.Date()`"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Week 6: Differences in Populations
+
+This week we are going to use what we have learned about frequency distributions and apply this to assess differences in two sets of sample populations.
+
+### 6.1 Analysis of Variance and Linear Regression
+
+We are adding a layer of complexity to our fake core data. Read the "Fake_core_plus.csv" file and let's see what this additional bit of data looks like.
+
+```{r reading updated fake core, echo = TRUE}
+
+fake_core = read.csv("data/Fake_core_plus.csv", header = TRUE, row.names = "depth")
+
+fake_core$stratum
+
+```
+
+In this imaginary setting, let us see if we can assign stratum D to one of the major sample groups.
+
+```{r extracting data by stratum, echo = TRUE}
+
+upper_cyp = fake_core$Cyperaceae.undiff.[fake_core$stratum == "A" |
+                                           fake_core$stratum == "B" |
+                                           fake_core$stratum == "C"]
+
+
+lower_cyp = fake_core$Cyperaceae.undiff.[fake_core$stratum == "E" |
+                                           fake_core$stratum == "F" |
+                                           fake_core$stratum == "G"]
+
+upper_sap = fake_core$Sapotaceae.undiff.[fake_core$stratum == "A" |
+                                           fake_core$stratum == "B" |
+                                           fake_core$stratum == "C"]
+
+lower_sap = fake_core$Sapotaceae.undiff.[fake_core$stratum == "E" |
+                                           fake_core$stratum == "F" |
+                                           fake_core$stratum == "G"]
+
+```
+
+Let's compare the distribution of data between the upper, lower, and stratum "D". 
+
+```{r comparing distributions of data, echo = TRUE, fig.align = "center", fig.height = 10, fig.width = 10}
+
+par(mfrow = c(3, 2))
+
+plot(density(upper_cyp), xlim = c(0,50), ylim = c(0, 0.08), col = "blue")
+lines(density(lower_cyp), lty = 3, col = "darkgreen")
+lines(density(fake_core$Cyperaceae.undiff.[fake_core$stratum == "D"]), lty = 2, col = "red")
+
+plot(density(upper_sap), xlim = c(0,40), ylim = c(0, 0.08), col = "blue")
+lines(density(lower_sap), lty = 3, col = "darkgreen")
+lines(density(fake_core$Sapotaceae.undiff.[fake_core$stratum == "D"]), lty =2, col = "red")
+
+plot(0, 0, pch = NA, axes = FALSE, ann = FALSE, xlim = c(0, 50), ylim = c(0, 7))
+lines(table(lower_cyp), lty = 2, col = "darkgreen")
+lines(table(upper_cyp), lty = 3, col = "blue")
+lines(table(fake_core$Cyperaceae.undiff.[fake_core$stratum == "D"]), lty = 1)
+axis(1, at = 0:50)
+axis(2, at = 0:7)
+
+plot(0, 0, pch = NA, axes = FALSE, ann = FALSE, xlim = c(0, 40), ylim = c(0, 7))
+lines(table(lower_sap), lty = 2, col = "darkgreen")
+lines(table(upper_sap), lty = 3, col = "blue")
+lines(table(fake_core$Sapotaceae.undiff.[fake_core$stratum == "D"]), lty = 1)
+axis(1, at = 0:50)
+axis(2, at = 0:7)
+
+vioplot::vioplot(upper_cyp, lower_cyp, fake_core$Cyperaceae.undiff.[fake_core$stratum == "D"], 
+                 horizontal = TRUE,
+                 col = c("blue", "darkgreen", "red"))
+
+vioplot::vioplot(upper_sap, lower_sap, fake_core$Sapotaceae.undiff.[fake_core$stratum == "D"], 
+                 horizontal = TRUE,
+                 col = c("blue", "darkgreen", "red"))
+
+
+par(mfrow = c(1,1))
+
+```
+
+
+
+
+
+
+
+
+
+
