@@ -13,7 +13,7 @@ knitr::opts_chunk$set(echo = TRUE)
 
 This week we are going to use what we have learned about frequency distributions and apply this to assess differences in two sets of sample populations.
 
-### 6.1 Analysis of Variance and Linear Regression
+### 1 Analysis of Variance and Linear Regression
 
 We are adding a layer of complexity to our fake core data. Read the "Fake_core_plus.csv" file and let's see what this additional bit of data looks like.
 
@@ -25,7 +25,18 @@ fake_core$stratum
 
 ```
 
-In this imaginary setting, let us see if we can assign stratum D to one of the major sample groups.
+As a reminder, we can check out data with head() or tail() also and see how the new information lies in the table.
+
+```{r head and tail, echo = TRUE}
+
+head(fake_core)
+
+tail(fake_core)
+
+```
+
+
+In this imaginary setting, let us assign stratum D to one of the major sample groups. Does it belong with A, B, and C or with E, F, and G?
 
 ```{r extracting data by stratum, echo = TRUE}
 
@@ -48,7 +59,7 @@ lower_sap = fake_core$Sapotaceae.undiff.[fake_core$stratum == "E" |
 
 ```
 
-Let's compare the distribution of data between the upper, lower, and stratum "D". 
+Let's compare the distribution of data between the upper, lower, and stratum "D".
 
 ```{r comparing distributions of data, echo = TRUE, fig.align = "center", fig.height = 10, fig.width = 10}
 
@@ -89,7 +100,171 @@ par(mfrow = c(1,1))
 
 ```
 
+We see that our Cyperaceae undiff. groups are relatively well separated, while the Sapotaceae undiff. groups have a lot more overlap. But how different? We need some ways to quantify the differences between these distributions. Enter the Analysis of Variance, or ANOVA. The aov() function runs the ANOVA test, which compares means and dispersion. First, we will simplify the stratigraphic categories so that we can ask our question: is D more likely to be a part of the same population as A, B, and C, or E, F, and G?
 
+```{r revised groups for ANOVA, echo = TRUE}
+
+all_strat = fake_core$stratum
+
+fake_core = fake_core[,-c(ncol(fake_core))] #Here we purge the stratum column so we have a numeric matrix.
+
+smp_strat <- vector("character", length = nrow(fake_core))
+
+smp_strat[all_strat == "A" | all_strat == "B" | all_strat == "C"] = "Upper"
+
+smp_strat[all_strat == "E" | all_strat == "F" | all_strat == "G"] = "Lower"
+
+smp_strat[all_strat == "D"] = "Test"
+
+smp_strat
+
+```
+
+Our basic hypothesis here is that D is part of the Upper group and not the Lower group. We could just ask ourselves, what are the chances that the sample mean of D comes from the same population with the sample mean of the Upper group or Lower group?
+
+```{r sample vs population means, echo = TRUE, fig.align = "center", fig.height = 10, fig.width = 10}
+
+plot(density(fake_core$Cyperaceae.undiff.[smp_strat == "Upper"]), xlim = c(0,50), ylim = c(0, 0.10), col = "blue")
+lines(density(fake_core$Cyperaceae.undiff.[smp_strat == "Test"]), lty = 2, col = "red")
+
+lines(c(rep(mean(fake_core$Cyperaceae.undiff.[smp_strat == "Upper"]), 2)),
+      c(0,0.10),
+      lty = 3)
+
+text(mean(fake_core$Cyperaceae.undiff.[smp_strat == "Test"])+5, 0.08, labels = paste0(mean(fake_core$Cyperaceae.undiff.[smp_strat == "Test"])))
+
+lines(c(rep(mean(fake_core$Cyperaceae.undiff.[smp_strat == "Test"]), 2)),
+      c(0,0.10),
+      lty = 3)
+
+text(mean(fake_core$Cyperaceae.undiff.[smp_strat == "Upper"])-5, 0.08, labels = paste0(mean(fake_core$Cyperaceae.undiff.[smp_strat == "Upper"])))
+
+arrows(mean(fake_core$Cyperaceae.undiff.[smp_strat == "Upper"]), 0.08, mean(fake_core$Cyperaceae.undiff.[smp_strat == "Test"]), 0.08)
+
+#Use custom function from last week.
+
+norm_area = function(dist, value, col = "gray"){
+  yt = dist$y[dist$x < value]
+  yb = rep(0, length(yt))
+  
+  x = dist$x[dist$x < value]
+  
+  
+  polygon(c(x, rev(x)), c(yt,yb), col = col)
+}
+
+norm_area(density(fake_core$Cyperaceae.undiff.[smp_strat == "Upper"]), mean(fake_core$Cyperaceae.undiff.[smp_strat == "Test"]), col = "gold")
+
+
+```
+
+
+
+
+Basic ANOVA call. The aov() function expects a "model" as input. It wants some group of numeric data and a set of categorical assignments by which to compare it.
+
+```{r basic ANOVA, echo = TRUE}
+
+aov(fake_core$Cyperaceae.undiff.~smp_strat)
+
+```
+
+This is the basic result, but we don't get many details. Let's make an object (many coders use "." when making object names with output) and fill it with the result. We will also do this by the pairs we are comparing (D and Upper, D and Lower). Notice we're subsetting the data.
+
+```{r ANOVA for fake_core with simplified groups, echo = TRUE}
+
+upper.model <- aov(fake_core$Cyperaceae.undiff.[smp_strat == "Test" | smp_strat == "Upper"]~smp_strat[smp_strat == "Test" | smp_strat == "Upper"])
+
+lower.model <- aov(fake_core$Cyperaceae.undiff.[smp_strat == "Test" | smp_strat == "Lower"]~smp_strat[smp_strat == "Test" | smp_strat == "Lower"])
+
+```
+
+
+Look at the results by summarizing the object. 
+
+```{r ANOVA results for upper and lower, echo = TRUE}
+
+summary(upper.model)
+
+summary(lower.model)
+
+```
+
+
+### 2 AOV with Percent Transformed Data
+
+Raw counts may not be the best way to assess the differences in the original past population, so we control for uneven sample sizes by transforming into percents.
+
+```{r percent transformed data, echo = TRUE}
+
+fake_pct <- (fake_core[,1:ncol(fake_core)-1] #Take fake_core object, including all rows except the last one (derived by ncol())
+             /apply(fake_core[,1:ncol(fake_core)-1],1,sum))*100 #Divide those by the row sums of the same object columns (also derived by ncol())
+
+head(fake_pct)
+
+tail(fake_pct)
+
+```
+
+Notice that we've excluded the stratigraphic details, so we will call them from the all_strat object when we need them.
+
+```{r plots of distributions for percent plots, fig.align = "center", fig.height = 10, fig.width = 10}
+
+upper_cyp = fake_pct$Cyperaceae.undiff.[all_strat == "A" |
+                                           all_strat == "B" |
+                                           all_strat == "C"]
+
+
+lower_cyp = fake_pct$Cyperaceae.undiff.[all_strat == "E" |
+                                           all_strat == "F" |
+                                           all_strat == "G"]
+
+upper_sap = fake_pct$Sapotaceae.undiff.[all_strat == "A" |
+                                           all_strat == "B" |
+                                           all_strat == "C"]
+
+lower_sap = fake_pct$Sapotaceae.undiff.[all_strat == "E" |
+                                           all_strat == "F" |
+                                           all_strat == "G"]
+
+#Three plots showing different ways to assess differences in distributions.
+
+par(mfrow = c(3, 2))
+
+plot(density(upper_cyp), xlim = c(0,25), ylim = c(0, 0.20), col = "blue")
+lines(density(lower_cyp), lty = 3, col = "darkgreen")
+lines(density(fake_pct$Cyperaceae.undiff.[all_strat == "D"]), lty = 2, col = "red")
+
+plot(density(upper_sap), xlim = c(0,25), ylim = c(0, 0.20), col = "blue")
+lines(density(lower_sap), lty = 3, col = "darkgreen")
+lines(density(fake_pct$Sapotaceae.undiff.[all_strat == "D"]), lty =2, col = "red")
+
+plot(0, 0, pch = NA, axes = FALSE, ann = FALSE, xlim = c(0, 25), ylim = c(0, 1))
+lines(table(lower_cyp), lty = 2, col = "darkgreen")
+lines(table(upper_cyp), lty = 3, col = "blue")
+lines(table(fake_pct$Cyperaceae.undiff.[all_strat == "D"]), lty = 1)
+axis(1, at = 0:50)
+axis(2, at = 0:1)
+
+plot(0, 0, pch = NA, axes = FALSE, ann = FALSE, xlim = c(0, 20), ylim = c(0, 1))
+lines(table(lower_sap), lty = 2, col = "darkgreen")
+lines(table(upper_sap), lty = 3, col = "blue")
+lines(table(fake_pct$Sapotaceae.undiff.[all_strat == "D"]), lty = 1)
+axis(1, at = 0:50)
+axis(2, at = 0:1)
+
+vioplot::vioplot(upper_cyp, lower_cyp, fake_pct$Cyperaceae.undiff.[all_strat == "D"], 
+                 horizontal = TRUE,
+                 col = c("blue", "darkgreen", "red"))
+
+vioplot::vioplot(upper_sap, lower_sap, fake_pct$Sapotaceae.undiff.[all_strat == "D"], 
+                 horizontal = TRUE,
+                 col = c("blue", "darkgreen", "red"))
+
+
+par(mfrow = c(1,1))
+
+```
 
 
 

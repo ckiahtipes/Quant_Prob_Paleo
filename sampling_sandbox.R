@@ -421,7 +421,62 @@ vioplot::vioplot(upper_sap, lower_sap, fake_pct$Sapotaceae.undiff.[fake_core$str
 
 par(mfrow = c(1,1))
 
-#Assessing differences with tests
+#Assessing differences with tests and visualizing.
+
+#Get basics in order
+
+smp_strat <- vector("character", length = nrow(fake_core))
+
+smp_strat[fake_core$stratum == "A" | fake_core$stratum == "B" | fake_core$stratum == "C"] = "Upper"
+
+smp_strat[fake_core$stratum == "E" | fake_core$stratum == "F" | fake_core$stratum == "G"] = "Lower"
+
+smp_strat[fake_core$stratum == "D"] = "Test"
+
+smp_strat
+
+all_strat = fake_core$stratum
+
+fake_core = fake_core[,-c(ncol(fake_core))]
+
+#What are odds of drawing D's mean from the upper or lower population?
+
+plot(density(fake_core$Cyperaceae.undiff.[smp_strat == "Upper"]), xlim = c(0,50), ylim = c(0, 0.10), col = "blue")
+lines(density(fake_core$Cyperaceae.undiff.[smp_strat == "Test"]), lty = 2, col = "red")
+
+lines(c(rep(mean(fake_core$Cyperaceae.undiff.[smp_strat == "Upper"]), 2)),
+      c(0,0.10),
+      lty = 3)
+
+text(mean(fake_core$Cyperaceae.undiff.[smp_strat == "Test"])+5, 0.08, labels = paste0(mean(fake_core$Cyperaceae.undiff.[smp_strat == "Test"])))
+
+lines(c(rep(mean(fake_core$Cyperaceae.undiff.[smp_strat == "Test"]), 2)),
+      c(0,0.10),
+      lty = 3)
+
+text(mean(fake_core$Cyperaceae.undiff.[smp_strat == "Upper"])-5, 0.08, labels = paste0(mean(fake_core$Cyperaceae.undiff.[smp_strat == "Upper"])))
+
+arrows(mean(fake_core$Cyperaceae.undiff.[smp_strat == "Upper"]), 0.08, mean(fake_core$Cyperaceae.undiff.[smp_strat == "Test"]), 0.08)
+
+#Use custom function from last week.
+
+norm_area = function(dist, value, col = "gray"){
+  yt = dist$y[dist$x < value]
+  yb = rep(0, length(yt))
+  
+  x = dist$x[dist$x < value]
+  
+  
+  polygon(c(x, rev(x)), c(yt,yb), col = col)
+}
+
+norm_area(density(fake_core$Cyperaceae.undiff.[smp_strat == "Upper"]), mean(fake_core$Cyperaceae.undiff.[smp_strat == "Test"]), col = "gold")
+
+
+
+
+
+
 
 
 
