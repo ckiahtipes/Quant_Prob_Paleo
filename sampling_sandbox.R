@@ -472,15 +472,20 @@ norm_area = function(dist, value, col = "gray"){
 
 norm_area(density(fake_core$Cyperaceae.undiff.[smp_strat == "Upper"]), mean(fake_core$Cyperaceae.undiff.[smp_strat == "Test"]), col = "gold")
 
+#Some aov basics.
 
+sedge.model <- aov(fake_core$Cyperaceae.undiff.~smp_strat)
 
+summary(sedge.model)
 
+TukeyHSD(sedge.model)
 
+sedge.lm <- lm(fake_core$Cyperaceae.undiff.~smp_strat)
 
+summary(sedge.lm)
 
-
-
-
+mean(fake_core$Cyperaceae.undiff.[smp_strat == "Lower"])
+mean(fake_core$Cyperaceae.undiff.[smp_strat == "Test"])
 
 
 
