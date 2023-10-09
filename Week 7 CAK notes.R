@@ -242,3 +242,9 @@ par(mfrow = c(1, 1), mar = c(5, 4, 4, 2) + 0.1)
 #You can call details of linear model with summary()
 
 summary(IB.AAlm)
+
+#Wonder what we can achieve with a chi-square
+
+
+
+
