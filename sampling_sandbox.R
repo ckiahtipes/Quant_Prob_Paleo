@@ -487,5 +487,23 @@ summary(sedge.lm)
 mean(fake_core$Cyperaceae.undiff.[smp_strat == "Lower"])
 mean(fake_core$Cyperaceae.undiff.[smp_strat == "Test"])
 
+#Some first steps with PCA
+
+fake.pca <- rda(fake_core)
+
+plot(fake.pca)
+
+summary(fake.pca)
+
+fake_zcore <- apply(fake_core, 2, zscore)
+
+fake.pcaz <- rda(fake_zcore)
+
+plot(fake.pcaz)
+
+summary(fake.pcaz)
+
+
+
 
 

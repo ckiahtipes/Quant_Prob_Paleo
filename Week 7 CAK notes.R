@@ -192,7 +192,7 @@ points(TF$D.L.Glu,
 abline(IB.AAlm, lty =3, col = "darkred")
 abline(IVC.AAlm, lty =3, col = "darkblue")
 
-legend(0.4, 0.3,
+legend("bottomright",
        c("Station IB", "Station IVC", "Thomp. Form.", "G1", "G2", "G3", "IB reg line", "IVC reg line"),
        pch = c(21, 22, 23, 21, 21, 21, NA, NA),
        pt.bg = c(NA, NA, "gold", 1, 3, 5, NA, NA),
@@ -208,7 +208,7 @@ IVC.AAlm <- lm(log(IVC$D.L.Ratio...ASP)~log(IVC$D.L.Ratio...GLU))
 plot(log(IB$D.L.Ratio...GLU),
      log(IB$D.L.Ratio...ASP),
      pch = 21,
-     main = "IB vs IVC AAR Data", #Short, but useful names are best.
+     main = "Log-Transformed IB vs IVC AAR Data", #Short, but useful names are best.
      xlab = "log GLU Racemization", #use xlab to clean up name.
      ylab = "log ASP Recemization",
      xlim = c(min(log(c(IB$D.L.Ratio...GLU, IVC$D.L.Ratio...GLU, TF$D.L.Glu))),max(log(c(IB$D.L.Ratio...GLU, IVC$D.L.Ratio...GLU, TF$D.L.Glu)))+1),
@@ -229,7 +229,7 @@ points(log(TF$D.L.Glu),
 abline(IB.AAlm, lty =3, col = "darkred")
 abline(IVC.AAlm, lty =3, col = "darkblue")
 
-legend(-2, -2,
+legend("bottomright",
        c("Station IB", "Station IVC", "Thomp. Form.", "G1", "G2", "G3", "IB reg line", "IVC reg line"),
        pch = c(21, 22, 23, 21, 21, 21, NA, NA),
        pt.bg = c(NA, NA, "gold", 1, 3, 5, NA, NA),
@@ -243,7 +243,14 @@ par(mfrow = c(1, 1), mar = c(5, 4, 4, 2) + 0.1)
 
 summary(IB.AAlm)
 
-#Wonder what we can achieve with a chi-square
+#Aov attempt
+
+IB.aov <- aov(IB$D.L.Ratio...GLU~as.factor(IB$Grade)) #Works if you make these factors!
+
+IB_aov <- summary(IB.aov)
+
+TukeyHSD(IV.aov)
+
 
 
 
