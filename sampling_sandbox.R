@@ -1,5 +1,7 @@
 #Working out sampling from probability distributions
 
+library(vegan)
+
 my_log <- rlogis(1000)
 my_exp <- rexp(1000)
 my_nrm <- rnorm(1000)

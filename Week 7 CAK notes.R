@@ -249,9 +249,11 @@ IB.aov <- aov(IB$D.L.Ratio...GLU~as.factor(IB$Grade)) #Works if you make these f
 
 IB_aov <- summary(IB.aov)
 
-TukeyHSD(IV.aov)
+TukeyHSD(IB.aov)
 
+plot(TukeyHSD(IB.aov))
 
-
-
+IBGLU_G1 <- IB$D.L.Ratio...GLU[IB$Grade == 1]
+IBGLU_G3 <- IB$D.L.Ratio...GLU[IB$Grade == 3]
+IBGLU_G5 <- IB$D.L.Ratio...GLU[IB$Grade == 5]
 
