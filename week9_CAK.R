@@ -1,6 +1,7 @@
 ### Week 9A - Ordination
 
 library(vegan)
+library(MASS)
 
 #Key functions
 
@@ -194,35 +195,71 @@ all_taxa <- colnames(clap) #We need a list of names.
 probs <- clap_pct/100
 
 #Basic method for sampling our own data.
+
 resampled_names <- sample(all_taxa, 100, replace = TRUE, prob = probs[1 , ])
 
-times <- 200
+times <- 1000
+s_size <- 500
 
-n_things <- vector("numeric", length = times)
-mx_thing <- vector("numeric", length = times)
-mn_thing <- vector("numeric", length = times)
-thing_matrix <- matrix(ncol = 200, nrow = 200)
+#Building improved method, iterative nature is built into sample, so we just read one-by-one.
 
-for(i in 1:times){
-  clap_sample <- sample(all_taxa, i, replace = TRUE, prob = probs[5, ])
-  thing_matrix[1:i, ] = clap_sample
-  n_things[i] <- length(unique(clap_sample))
-}
+clap_resampled <- data.frame(lapply(1:times, function(x){ #Make data frame of redrawn taxon names.
+  sample(all_taxa, s_size, replace = TRUE, prob = probs[5, ])
+}))
 
-n_things
+clap_recount <- data.frame(apply(clap_resampled, 2, function(x){ #Make data frame with counts of unique taxa for each run.
+  clap_count <- vector("numeric", length = nrow(clap_resampled))
+  for(i in 1:length(clap_count)){
+    n <- length(unique(x[1:i]))
+    clap_count[i] <- n
+  }
+  return(clap_count)
+}))
 
-plot(1:200, n_things, pch = 22, bg = heat.colors(200))
+colnames(clap_recount) <- paste0("resample",c(1:times))
 
-#We can use vegan and then extract at different sampling size.
+plot(0, 0, 
+     xlim = c(0, s_size), 
+     ylim = c(0, max(apply(clap_recount, 2, max))),
+     xlab = "sample size",
+     ylab = "richness",
+     pch = NA)
 
-clap.rare <- rarecurve(clap)
-clap_array <- array(clap.rare, dimnames = list(row.names(clap)))
+polygon( c(1:s_size,rev(1:s_size)), 
+         c(apply(clap_recount,1,max),rev(apply(clap_recount,1,min))),
+         density = c(10),
+         col = "gold")
 
-#Plotting example.
-
-plot(1:200,(clap_array$Ey[1:200]),type = "l")
-lines(1:200, clap_array$D[1:200])
-
+lines(1:s_size, apply(clap_recount,1,mean), lty = 3)
 
 
-
+#
+#
+#n_things <- vector("numeric", length = times)
+#mx_thing <- vector("numeric", length = times)
+#mn_thing <- vector("numeric", length = times)
+#thing_matrix <- matrix(ncol = times, nrow = 200)
+#
+#for(i in 1:times){
+#  clap_sample <- sample(all_taxa, i, replace = TRUE, prob = probs[5, ])
+#  thing_matrix[1:i, ] = clap_sample
+#  n_things[i] <- length(unique(clap_sample))
+#}
+#
+#n_things
+#
+#plot(1:times, n_things, pch = 22, bg = heat.colors(times))
+#
+##We can use vegan and then extract at different sampling size.
+#
+#clap.rare <- rarecurve(clap)
+#clap_array <- array(clap.rare, dimnames = list(row.names(clap)))
+#
+##Plotting example.
+#
+#plot(1:200,(clap_array$Ey[1:200]),type = "l")
+#lines(1:200, clap_array$D[1:200])
+#
+#
+#
+#
