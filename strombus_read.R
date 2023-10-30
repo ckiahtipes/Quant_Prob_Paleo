@@ -18,4 +18,4 @@ array_names <- list("T", "W", "LR", "Live", "G1", "G2", "G3") #Create names.
 grade_array <- as.array(grade_array) #Make object an array.
 names(grade_array) <- array_names #Name the tables in array.
   
-
+strombus_dead <- data.frame(grade_array$G1$Strombus_alatus, grade_array$G2$Strombus_alatus, grade_array$G3$Strombus_alatus)
