@@ -13,3 +13,5 @@ FL_datasets <- get_downloads(FL_sites, all_data = FALSE)
 FL_samples <- samples(FL_datasets)
 
 FL_samples[FL_samples$element == "pollen",] #This shows you pollen samples.
+
+unique(FL_samples$element)
