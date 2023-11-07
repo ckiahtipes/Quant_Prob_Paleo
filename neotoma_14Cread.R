@@ -53,7 +53,7 @@ plot(FL.ckde)
 
 #This is a basic method that works.
 
-
+#Next step may be to derive SPDs from latitudinal or rainfall bins?
 
 
 
