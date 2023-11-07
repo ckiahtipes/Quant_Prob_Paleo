@@ -1,0 +1,50 @@
+"siteid","sitename","latitude","longitude","datasetid","datasettype","ageoldest","ageyoungest"
+229,Barchampe Lake,30.622222,-83.253889,232,pollen,7648,-32
+312,Buck Lake,27.234444,-81.332222,319,pollen,8544,0
+324,Camel Lake,30.266667,-85.016667,331,pollen,36658,0
+940,Goshen Springs,31.721111,-86.134167,969,pollen,54999,0
+961,Water Conservation Area 3B, Gumbo Limbo Dry Head,25.773889,-80.505556,992,pollen,355,-37
+962,Water Conservation Area 3B, Gumbo Limbo Far Tail,25.774722,-80.505556,993,pollen,5002,-38
+963,Water Conservation Area 3B, Gumbo Limbo Marsh,25.778889,-80.511111,994,pollen,4342,-34
+964,Water Conservation Area 3B, Gumbo Limbo Near Tail,25.886944,-80.561389,995,pollen,3750,131
+965,Water Conservation Area 3B, Gumbo Limbo Wet Head,25.773611,-80.506389,996,pollen,4192,-43
+1568,Langdale Pond,30.641667,-83.195,1614,pollen,8194,0
+1597,Lake Annie,27.20731,-81.350875,1648,pollen,48642,0
+1617,Lake Louise,30.725,-83.258333,3484,pollen,10641,0
+1619,Loxahatchee National Wildlife Refuge Site 1 (EPA Site 7),26.481111,-80.415556,1671,pollen,1473,-39
+1718,Mud Creek Site 1,25.219722,-80.604722,1775,pollen,1897,-42
+1719,Mud Lake,29.29993,-81.86601,1776,pollen,8859,0
+1760,Water Conservation Area 3B, Nuthouse Far Tail,25.885556,-80.556667,1818,pollen,3800,-23
+1761,Water Conservation Area 3B, Nuthouse Head,25.889167,-80.5125,1819,pollen,2268,-38
+2269,Scott Lake,27.965415,-81.94163,2349,pollen,4527,-18
+2298,Sheley Pond,31.080833,-81.636944,2380,pollen,819,25
+2540,Taylor Creek Site 2,25.205556,-80.643889,2630,pollen,504,-35
+2540,Taylor Creek Site 2,25.205556,-80.643889,3782,pollen,1937,-26
+2542,Taylor Slough Site 15,25.201944,-80.687222,2632,pollen,718,-3
+2543,Taylor Slough Site 7,25.287222,-80.646389,2633,pollen,3932,-31
+2570,Lake Tulane,27.58613,-81.503395,2663,pollen,51979,-34
+2570,Lake Tulane,27.58613,-81.503395,19620,pollen,62795,1060
+2846,Water Conservation Area 2A, Site 2 (Site F1),26.359722,-80.370556,2943,pollen,2414,-41
+2847,Water Conservation Area 2A, Site 3 (Site U3),26.2875,-80.411389,2944,pollen,2091,-37
+2848,Water Conservation Area 3A, Site 4 (CA315 (AAS)),25.974,-80.6688,2945,pollen,2463,-38
+5192,Little Salt Spring,27.075,-82.233333,17285,pollen,10310,-2
+6505,Northeast Shark River Slough,25.74642,-80.58386,10967,pollen,4679,-54
+10197,Ridge and Slough (02-05-20-13),26.102,-80.7375,15371,pollen,2497,-22
+10200,Ridge and Slough (02-05-20-14),26.1025,-80.736,15377,pollen,2762,-23
+10201,Ridge and Slough (02-05-21-2),25.8285,-80.768,15379,pollen,3878,3
+10202,Ridge and Slough (02-05-21-4),25.829,-80.7675,15381,pollen,3507,-41
+10203,Ridge and Slough (02-05-21-5),25.829,-80.7675,15383,pollen,4092,6
+10304,Big Cypress (core 03-9-16-3),25.7045,-80.873,15637,pollen,582,-59
+10305,Big Cypress (core 03-9-16-6),25.695,-80.87,15639,pollen,336,-59
+10357,Lake Shelby,30.260065,-87.66485,15750,pollen,7164,4
+10436,SRM-1,25.352778,-81.114444,15939,pollen,6004,-49
+11616,Big Cypress Bend [End boardwalk "Fak10 endB"],25.949,-81.46761,17417,pollen,5208,-35
+14222,Ochlockonee River,29.987725,-84.447055,22238,pollen,5830,1378
+16384,Lignumvitae Key,24.90197,-80.699085,25491,pollen,2112,-27
+16396,East Whitewater Bay,25.267035,-80.90641,25514,pollen,2461,64
+16448,Cotton Key,24.959505,-80.630165,25605,pollen,3913,3643
+16450,Water Conservation Area 3B,25.823515,-80.56772,25609,pollen,5923,142
+16455,Levee L67A,25.93942,-80.59845,25683,pollen,3822,1017
+16466,Rocky Glades,25.613645,-80.742645,25749,pollen,5821,2834
+27022,Mobile Bay, MB0810-GC20,30.291,-87.883,47599,pollen,3569,-62
+27024,St. Catherines Island (Northwest Marsh),31.68721,-81.152235,47602,pollen,35828,184

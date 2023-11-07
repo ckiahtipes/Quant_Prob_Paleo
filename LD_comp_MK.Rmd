@@ -1,0 +1,210 @@
+---
+title: "PaleoFidelity"
+author: "Michal Kowalewski"
+date: "`r Sys.Date()`"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{PaleoFidelity}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r setup, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+## Introduction
+
+The package "PaleoFidelity" carries out paleontological fidelity analyses focused on live-dead comparisons. Designed for compositional/enumeration data (e.g., specimen counts of taxa), the package can be used for a single site or sets of sites. A grouping factor can be provided to carry out comparative analyses of sites grouped by a factor (e.g., habitat, region, time interval).
+
+Currently, the following functions are provided:
+
+1. __FidelitySummary__ performs data assessment prior to any other analysis.
+
+2. __LDPlot__ plots a comparative live-dead plot for the _n_ most common taxa and provides a short numerical summary of live-dead fidelity
+
+3. __FidelityEst__ performs compositional fidelity analysis based on correlation/similarity measures.
+
+5. __FidelityDiv__ performs alpha diversity/evenness analysis (live-dead offsets in standardized diversity/evenness).
+
+5. __SJPlot__ plots a fidelity cross-plot of correlation and similarity measures 
+
+6. __AlphaPlot__ plots a fidelity cross-plot of live-dead offsets in alpha diversity and evenness
+
+ 
+
+## Installing PaleoFidelity Package
+The most updated beta version of the package is available at github. To install:
+```{r installing PaleoFidelity package, eval = FALSE}
+install.packages('devtools')
+library(devtools)
+devtools::install_github('mjkowalewski/PaleoFidelity', build_vignettes = TRUE)
+library(PaleoFidelity)
+```
+
+## Example datasets
+A live-data dataset (FidData) is included. This is a large subset of a marine benthos survey conducted along the coast of North Carolina, USA (for more info see Tyler and Kowalewski 2017, 2018). 
+
+```{r data example}
+library(PaleoFidelity)
+str(FidData) # check the structure of the dataset
+```
+
+FidData dataset is a single list with 4 items, but datasets can be stored as separate objects. Live and dead datasets must be formatted as matrices and their dimensions must match. The grouping factor variable should be univariate.
+
+For a single sample live-dead analysis, format 'live' and 'dead' specimen counts as one-row matrices.
+
+## FidelitySummary Function
+A function _FidelitySummary_ assesses data for format compliance and numerical adequacy. The function allows to filter rare taxa and small samples. A report summarizing the filtered dataset can be requested. This function is called by other PaleoFidelity functions and the data filters should be set in those functions before the analysis is carried out. When the argument report is set to TRUE, a report, notes, and warnings are printed.
+
+```{r fidelity summary function}
+FidelitySummary(live = FidData$live, dead = FidData$dead, gp = FidData$habitat, report = TRUE)
+```
+
+The report summarizes sample and variable data and notes if any data were removed. In this  example, the report  confirmed that the grouping factor included 2 levels with more than one sample allowing for by-group analyses and produced a warning about small samples with _n_ < 30.
+
+The _FidelitySummary_ function allows for exploring the effects of applying different filters (e.g., removing samples _n_ < 30).
+
+```{r fidelity summary function part 2}
+FidelitySummary(live = FidData$live, dead = FidData$dead, gp = FidData$habitat,
+                report = TRUE, n.filters = 30)
+```
+
+With n.filters set to 30, a total of 6 sites were lost but the factor levels still included more than 1 site per level. Also, no taxa were lost (i.e., the removed sites did not contain unique species) so data dimensionality was not reduced.
+
+```{r fidelity summary function part 3}
+FidelitySummary(live = FidData$live, dead = FidData$dead, gp = FidData$habitat, report = TRUE, n.filters = 100)
+```
+
+With n.filters set to 100, 12 taxa were lost and only 21 sites were retained. Thus, 100 may be an unreasonably high filter for this dataset. Once optimal filters are identified, they can be used in other fidelity functions.
+
+## LDPlot Function
+A function _LDPlot_ is designed to analyze and visualize a single live-dead comparison. The function returns a plot that compares the top _n_ species/variables in terms of rank abundance. This function accepts vectors. It also provides an option to output a report with summary statistics and expected values under the null model of perfect fidelity.
+
+```{r live-dead plot, fig.width=7, fig.height=6}
+par(mar=c(3, 7, 0.5, 7))
+rep1 <- LDPlot(live = colSums(FidData$live),
+       dead = colSums(FidData$dead),
+       tax.names = colnames(FidData$live), toplimit = 20,
+       cor.measure = 'spearman', report = TRUE, iter = 1000)
+```
+
+The graph indicates low compositional fidelity: (1) very few top live species are present among dead species and vice versa; (2) some of the top live taxa are also completely missing in dead dataset, and vice versa (taxa marked by asterisks); and (3) Spearman rank correlation estimate is low. This is not surprising given that live data include many species without hard skeleton.
+
+The report=TRUE produces a list of 8 items, which include summary tables for the top live and dead taxa, numerical and statistical summaries, expected correlation statistics and the statistical significance values of observed statistics based on a resampling simulation of perfect fidelity (explained below). When p = 0, p values are reported as p < 1 / number of iterations.   
+
+```{r LD comparison}
+rep1[1:7]
+```
+
+The function also stores correlation values (randomized.r in the report output) produced by the resampling protocol modelling perfect fidelity. In the model, observations are resampled from the pooled live-dead data  resulting in live and dead replicate samples that came from the same species abundance distribution (i.e., perfect live-dead agreement). This resampling procedure estimates the expected under-sampling bias in the three common correlation statistics (pearson, spearman, and kendall). The distribution can be plotted to compare against the observed value.
+
+```{r live-dead model, fig.width=7, fig.height=3.5}
+par(mar=c(4, 4, 0.5, 0.5))
+hist(rep1$randomized.r[,2], breaks=seq(-1,1,0.05), main='',
+     las=1, xlab=bquote('Spearman' ~ italic(rho)))
+arrows(rep1$cor.coeff[2], 100, rep1$cor.coeff[2], 10,
+       length=0.1, lwd=2)
+```
+
+In this example, the expected distribution of spearman rho values approaches rho = 1, which means that the effect of sampling bias is minimal. Inadequate sampling cannot explain the low observed rho value.
+
+## FidelityEst Function
+A function _FidelityEst_ returns compositional fidelity estimates by comparing live and dead datasets. The function returns  fidelity estimates for individual sites and for groups of sites if 'gp' factor is provided. The function produces two types of compositional fidelity estimates:
+
+1. $x - a measure of correlation/association: Spearman, Kendall, or Pearson.
+
+2. $y - an abundance-based measure of similarity such as Bray-Curtis or Jaccard-Chao.
+
+Because fidelity measures are sensitive to under-sampling or unbalanced sampling, _FidelityEst_ function implements two bias corrections: (1) estimating under-sampling biases and (2) standardizing sampling coverage.
+
+In the first approach, the bias is estimated using a resampling protocol under the perfect fidelity (PF) model, in which pooled data (live + dead) are randomly subsampled into replicate pairs of live and dead pseudo-samples (using sample sizes of original live and dead samples), thus creating live-dead  pairs derived from single underlying rank abundance species distributions (i.e., the perfect fidelity). The same approach is used in _LDPlot_ function discussed above. For an unbiased estimator, the resampled fidelity measures should indicate perfect fidelity (e.g., Spearman rho = 1). The offset between the expected observed PF value (1 - PF) provides a data-specific estimate of sampling bias. The adjusted fidelity measure is then given by Adjusted = Observed + (1 - PF). Replicate resampling produces a distribution of PF values and resulting adjusted fidelity measures, from which confidence intervals and significance tests can be derived.
+
+In the second approach, fidelity measures are computed for sample standardized data, where all samples are subsampled to a sample size given by the smallest sample. Replicate resampling produces a distribution of sample-standardized fidelity estimates used to generate confidence intervals and means for standardized fidelity estimates.
+
+When the data include multiple sites that can be grouped into subsets, _FidelityEst_ will report mean fidelity estimates for total data and each group. Two measures are reported: a correlation measure (default=Spearman) and a similarity measure (default=Chao). Note also that correlation can be computed with double zeroes included or excluded. In the example below, double zeroes were kept, which is the recommended (default) approach.
+
+_FidelityEst_ function returns a _FidelityEst_ class object that can be used to plot a Fidelity Plot: _SJPlot_ function (see below). The object is a list and its structure is illustrated below. 
+
+```{r fidelity estimates}
+out1 <- FidelityEst(live = FidData$live, dead = FidData$dead,
+                    gp = FidData$habitat,
+                    n.filters = 30, iter = 499)
+str(out1)
+```
+
+_FidelityEst_ function returns the adjusted fidelity measures ($xc, $yc) with a correction  based on a resampling model simulating 'Perfect Fidelity' (discussed above). In addition, mean values for all samples and sample groups are also reported (if factor 'gp' is provided).
+
+```{r fidelity estimates outputs}
+out1$xc # adjusted correlation measure summary
+out1$yc # adjusted similarity measure summary
+```
+
+_FidelityEst_ function also returns sample-standardized fidelity measures ($xs, $ys) corrected for sampling coverage bias. The bias correction is based on subsampling all live-dead sample pairs to the common minimum sample size given by the smallest live and dead samples. In addition, mean values for all samples and sample groups are also reported (if factor 'gp' is provided).
+
+```{r fidelity estimates outputs: sample-standardized}
+out1$xs # sample-standardized correlation measure summary
+out1$ys # sample-standardized similarity measure summary
+```
+
+To explore visually fidelity estimates produced by _FidelityEst_ use _SJPlot_ function. The default plot includes only non-adjusted (raw) fidelity estimates (unadjF=TRUE).  
+
+## SJPlot Function
+```{r classic fidelity plot, fig.width=7, fig.height=4}
+par(mar = c(4, 4, 0.5, 0.5))
+SJPlot(out1, gpcol = c('aquamarine3', 'coral3'), cex.legend = 0.8)
+```
+
+Set bubble=TRUE to plot scaled symbols. Set unadjF=FALSE and adjF=TRUE to plot corrected estimates (note also that CI=FALSE suppresses confidence intervals). All estimates can be superimposed on a single plot by setting unadj=TRUE, adjf=TRUE, and ssF=TRUE. 
+
+```{r classic fidelity plot 2, fig.width=7.5, fig.height=4}
+par(mar = c(4, 4, 0.5, 0.5))
+SJPlot(out1, gpcol = c('aquamarine3', 'coral3'), bubble = TRUE, unadj = FALSE, adjF = TRUE, cex.legend = 0.8)
+```
+
+## FidelityDiv Function
+_FidelityDiv_ function evaluates live-dead fidelity in terms of alpha diversity and evenness offsets. The resulting object of the class _FidelityDiv_ can be plotted using the companion function _AlphaPlot_. When sites are categorized into groups, diversity analyses include by-group analyses and by-group plotting is returned by _AlphaPlot_.
+
+The function will report the offsets in alpha diversity and evenness (stored as $x and $y, respectively) for each live-dead comparisons. The function measures offsets using approach described in Olszewski and Kidwell (2007).
+
+```{r alpha diversity}
+out3 <- FidelityDiv(FidData$live, FidData$dead, iter=1000)
+out3$x
+out3$y
+```
+
+The returned object also reports mean offsets across all samples and groups of samples (if the factor 'gp' is provided). Significance values are also reported for the null hypothesis: offset = 0.
+
+```{r alpha diversity 2}
+out4 <- FidelityDiv(FidData$live, FidData$dead, FidData$habitat, iter=1000)
+out4$xmean
+out4$ymean
+out4$xgp
+out4$ygp
+out4$p.values
+out4$p.gps
+```
+
+## AlphaPlot Function
+The output produced by _FidelityDiv_ function can be used to generate diversity-evenness offset plot (see Olszewski and Kidwell 2007). The function _AlphaPlot_ uses objects produced by _FidelityDiv_ to plot estimates of offsets for samples. 
+
+```{r plot alpha 2, fig.width=7, fig.height=4}
+out3 <- FidelityDiv(FidData$live, FidData$dead, FidData$habitat, CI = 0.95, iter = 1000)
+par(mar = c(4, 4.5, 0.5, 0.5))
+AlphaPlot(out3, col.gp = c('aquamarine3', 'coral3'), bgpt = 'beige', pch = 22, legend.cex = 0.8)
+```
+
+## Comments
+Comments and questions about PaleoFidelity should be directed to kowalewski@ufl.edu.
+
+## References
+Kowalewski, M.,	Carroll, M., Casazza, L., Gupta, N., Hannisdal, B., Hendy, A., Krause, R.A., Jr., Labarbera, M., Lazo, D.G., Messina, C., Puchalski, S., Rothfus, T.A., Sälgeback, J., Stempien, J., Terry, R.C., Tomašových, A., (2003), Quantitative fidelity of brachiopod-mollusk assemblages from modern subtidal environments of San Juan Islands, USA. _Journal of Taphonomy_ **1**, 43-65.
+
+Olszewski T.D., Kidwell S.M., 2007, The preservational fidelity of evenness in molluscan death assemblages. _Paleobiology_ **33**, 1–23. (doi:10.1666/05059.1)
+
+Tyler, C.T., Kowalewski, M., 2017, Surrogate taxa and fossils as reliable proxies of spatial biodiversity patterns in marine benthic communities. _Proceedings of the Royal Society B_ **284**: 20162839. (doi:10.1098/rspb.2016.2839).
+
+Tyler, C.L., Kowalewski, M., 2018, Regional surveys of macrobenthic shelf invertebrate communities in Onslow Bay, North Carolina, U.S.A. _Scientific Data_ **5**:180054 (doi:10.1038/sdata.2018.54)
